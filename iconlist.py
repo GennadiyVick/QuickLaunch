@@ -2,19 +2,7 @@
 # class IconList based list class with save and load method
 # Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 # 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
+
 from PyQt5.QtCore import QFile
 from PyQt5.QtCore import QTextStream
 from PyQt5.QtCore import QSize
@@ -49,7 +37,6 @@ class IconList(list):
                         print("item not added ("+title+")")
 
         file.close()
-
     def saveToFile(self,fn):
         file = QFile(fn)
         if file.exists(): file.remove()
@@ -59,10 +46,8 @@ class IconList(list):
                 line = inf.getLine()+"\n"
                 stream << line
             file.close()
-
     def cnt(self):
         return len(self)
-
     def addItem(self,icon,exec,title):
         #в iconinfo  наоборот iconsize = 48 scaled size = 32, а тут наоборот defaultIconScaledSize = 48
         info = IconInfo(self.defaultIconScaledSize,self.defaultIconSize,self.defaultIconFrameSize)

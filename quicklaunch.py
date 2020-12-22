@@ -5,18 +5,6 @@
 # The program takes the name of the panel as an argument, by default "Programms"
 # Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 # 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # some else...
 # I bag your pardon for russian documentation of functions,
@@ -33,10 +21,7 @@ from PyQt5.QtWidgets import QGraphicsScene
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QPainter
-from PyQt5.QtCore import QSettings
-from PyQt5.QtCore import QPoint
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QFile
+from PyQt5.QtCore import QSettings, QTimer,QPoint,Qt,QFile
 
 import images #imageresources
 import wnd #mainwindow class
@@ -72,7 +57,15 @@ class PanelWindow(QtWidgets.QWidget):
         self.linkPath = os.path.dirname(set.fileName())
         left = int(set.value(self.title+"/Pos/Left","-1"))
         top = int(set.value(self.title+"/Pos/Top","-1"))
-        self.ui.centralwidget.setStyleSheet(set.value(self.title+"/style",self.ui.centralwidget.styleSheet()))
+        ss = set.value(self.title+"/style",self.ui.centralwidget.styleSheet())
+        self.ui.centralwidget.setStyleSheet(ss)
+        self.ui.ltitle.setStyleSheet(set.value(self.title+"/TitleColor",""))
+        
+        ''' почему то при инициализации окна стиль не устанавливается
+            поэтому я его ставлю по таймеру
+        '''
+        QTimer.singleShot(40,self.resetstyle)
+        #timer = QTimer(self)
 
         self.listFilename = set.value(self.title+"/Filename","")
         if self.listFilename == "" or not QFile.exists(self.listFilename):
@@ -100,6 +93,10 @@ class PanelWindow(QtWidgets.QWidget):
             self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
         self.ps = self.pos()
         #atexit.register(self.onClose)
+    
+    def resetstyle(self):
+        ss = self.ui.centralwidget.styleSheet()
+        self.ui.centralwidget.setStyleSheet(ss)
 
     def changeTitle(self,newtitle):
         set = QSettings("QuickLaunch", "config")
@@ -121,7 +118,8 @@ class PanelWindow(QtWidgets.QWidget):
         set.setValue(self.title+"/Pos/Left",p.x())
         set.setValue(self.title+"/Pos/Top",p.y())
         set.setValue(self.title+"/Filename",self.listFilename)
-        set.setValue(self.title+"/style",self.ui.centralwidget.styleSheet())        
+        set.setValue(self.title+"/style",self.ui.centralwidget.styleSheet())    
+        set.setValue(self.title+"/TitleColor",self.ui.ltitle.styleSheet())
         
 
 

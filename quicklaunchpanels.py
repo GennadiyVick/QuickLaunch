@@ -1,23 +1,12 @@
 #!/usr/bin/python3
-# QuickLaunchPanels Program to manage of panels of quick launch
-# you can show , add, rename and delete a panel. Programm use tray icon with context menu for show window and close.
+# -*- coding: utf-8 -*-
+
+# The program to manage a pane-type windows where you can move files with 
+# the .desktop extension to quickly launch programs or other commands.
 #
 # Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 # 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
- 
+
 from PyQt5 import QtGui, QtCore,QtWidgets
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QSystemTrayIcon, \
     QAction, QStyle, QMenu, QInputDialog, QMessageBox
@@ -41,6 +30,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         self.canClose = False
         self.initTray()
         self.app = parent
+        self.canClose = False
         self.dialogs = []
         #self.fn = os.path.dirname(os.path.abspath(__file__))
         #self.fn += "/panels.lst"

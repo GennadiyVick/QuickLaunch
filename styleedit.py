@@ -1,25 +1,13 @@
-# StyleEditWindow dialog
-# Create graphic interface for a window of panel style editing 
+# -*- coding: utf-8 -*-
 # Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
+ 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QColorDialog
+from PyQt5.QtGui import QColor
 
 class Ui_Dialog(object):
-    def setupUi(self, Dialog):
+    def setupUi(self, Dialog, textcolor = QColor(255,255,255)):
         Dialog.setObjectName("Dialog")
         Dialog.resize(414, 243)
         Dialog.setModal(True)
@@ -41,6 +29,26 @@ class Ui_Dialog(object):
         self.pEdit = QtWidgets.QPlainTextEdit(self.widget_3)
         self.pEdit.setObjectName("pEdit")
         self.verticalLayout_2.addWidget(self.pEdit)
+        
+        self.widget_5 = QtWidgets.QWidget(self.widget_3)
+        self.widget_5.setMinimumSize(QtCore.QSize(0, 35))
+        self.widget_5.setObjectName("widget_5")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.widget_5)
+        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_3.setSpacing(3)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.clr = QtWidgets.QLabel(self.widget_5)
+        self.clr.setMinimumSize(QtCore.QSize(30, 30))
+        self.clr.setMaximumSize(QtCore.QSize(33, 16777215))
+        self.clr.setStyleSheet("background: "+textcolor.name()+";")
+        self.clr.setText("")
+        self.clr.setObjectName("clr")
+        self.horizontalLayout_3.addWidget(self.clr)
+        self.bClr = QtWidgets.QPushButton(self.widget_5)
+        self.bClr.setObjectName("bClr")
+        self.horizontalLayout_3.addWidget(self.bClr)
+        self.verticalLayout_2.addWidget(self.widget_5)        
+        
         self.horizontalLayout.addWidget(self.widget_3)
         self.widget_4 = QtWidgets.QWidget(self.widget_2)
         self.widget_4.setObjectName("widget_4")
@@ -80,23 +88,26 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Стиль фона панели, цвет текста"))
         self.label.setText(_translate("Dialog", "Текст стиля"))
         self.label_2.setText(_translate("Dialog", "Пример"))
         self.bUpdate.setText(_translate("Dialog", "Обновить пример"))
         self.bOk.setText(_translate("Dialog", "OK"))
         self.bCancel.setText(_translate("Dialog", "Отмена"))
+        self.bClr.setText(_translate("Dialog", "Цвет текста заголовка"))        
 
 class StyleEditWindow(QtWidgets.QDialog):
-    def __init__(self, parent= None):
+    def __init__(self, parent= None, textColor = QColor(255,255,255)):
         super(StyleEditWindow, self).__init__(parent)
+        self.tcolor = textColor
         self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self,self.tcolor)
         self.ui.bCancel.clicked.connect(self.cancelclick)
         self.ui.bOk.clicked.connect((self.okclick))
         self.setWindowFlags(QtCore.Qt.Tool)
-        self.setStyleSheet("background: #222;")
+        self.setStyleSheet("background: #222; color: #aaa;")
         self.ui.bUpdate.clicked.connect(self.updateclick)
+        self.ui.bClr.clicked.connect(self.textcolorclick)
         
        
     def cancelclick(self):
@@ -104,5 +115,9 @@ class StyleEditWindow(QtWidgets.QDialog):
     def okclick(self):
         self.accept() 
     def updateclick(self):
-        self.ui.centralwidget.setStyleSheet(self.ui.pEdit.toPlainText())     
+        self.ui.centralwidget.setStyleSheet(self.ui.pEdit.toPlainText())    
+    def textcolorclick(self):
+        self.tcolor = QColorDialog.getColor()
+        self.ui.clr.setStyleSheet("background: "+self.tcolor.name()+";")
+        
 
