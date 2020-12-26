@@ -59,11 +59,13 @@ class IconList(list):
         cnt = self.cnt()
         x = int((cnt % self.parent.colcnt) * self.defaultIconFrameSize)+8
         y = int((cnt // self.parent.colcnt) * self.defaultIconFrameSize)+8
-        if not info.createIconItem(self.parent.scn,x,y): return False
+        if not info.createIconItem(self.parent.scn,x,y):
+            print("icon was not created")
+            return False
    
         self.append(info)
         rowcnt = int(self.parent.height() // self.defaultIconFrameSize)
-        if self.cnt() == 0: return
+        if self.cnt() == 0: return False
         row = int((self.cnt()-1) // self.parent.colcnt)
 
         if row >= rowcnt:
