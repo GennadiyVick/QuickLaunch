@@ -18,6 +18,7 @@ class Ui_QuickLaunchPanelsWindow(object):
         QuickLaunchPanelsWindow.resize(250, 230)
         self.centralwidget = QtWidgets.QWidget(QuickLaunchPanelsWindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.centralwidget.setStyleSheet("background: #222; color: #aaa;")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout.setContentsMargins(10, 0, 10, 0)
@@ -25,6 +26,7 @@ class Ui_QuickLaunchPanelsWindow(object):
         self.lv = QtWidgets.QListView(QuickLaunchPanelsWindow)        
         self.lv.setObjectName("lv")
         self.lv.setSizePolicy(self.sizePolicy())
+
 
         self.verticalLayout.addWidget(self.lv)
         

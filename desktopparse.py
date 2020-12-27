@@ -16,6 +16,7 @@ class DesktopParse:
                 return True
         return False
     
+    '''
     @staticmethod
     def getIconFromName(iconname):
         """Статическая функция для нахождения полного имени файла иконки по его имени.
@@ -41,6 +42,7 @@ class DesktopParse:
                     if QFile.exists(dir+iconname+ext):
                         return dir+iconname+ext
         return iconname    
+    '''
     
     @staticmethod
     def parse(parent,path,lang = "[ru]"):
@@ -61,7 +63,7 @@ class DesktopParse:
         title = ""
         icon = ""
         exec = ""
-        firstline = False
+        firstline = True
         if path.endswith(".desktop"):
             stream = QTextStream(file)
             while not stream.atEnd():
@@ -71,6 +73,7 @@ class DesktopParse:
                         if line == "[Desktop Entry]":
                             firstline = False
                     else:
+                        if line.startswith("["): break
                         if line.startswith("Icon="):
                             icon = line[-len(line)+5:]
                         if line.startswith("Name"+lang+"="):

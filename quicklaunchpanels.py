@@ -37,7 +37,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         self.panels = []
         self.model = QStandardItemModel(self);
         self.ui.lv.setModel(self.model)
-        self.ui.lv.setStyleSheet("QListView::item {font-size: 200%; color: #fff; padding: 5px 5px 5px 1px;}")
+        self.ui.lv.setStyleSheet("QListView {background: #2b2b2b; padding: 4px; border-style: inset; border-width: 1px; border-color: #90404050;border-radius: 10px;}")
         self.ui.lv.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.lv.customContextMenuRequested.connect(self.initContextMenu)        
         self.loadpanels()
@@ -136,6 +136,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         if ok and txt != text:
             self.panels[i] = text
             self.dialogs[i].changeTitle(text)
+            self.model.item(i).setText(text)
 
 
     def addclick(self):
