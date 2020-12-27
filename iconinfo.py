@@ -39,14 +39,7 @@ class IconInfo:
         try :
             self.x = x
             self.y = y
-            if not QFile.exists(self.icon):
-                icn = QIcon.fromTheme(self.icon)
-                if icn.isNull():
-                    icn = self.findicon()
-                    if icn == None or icn.isNull():
-                        icn = QIcon(":/images/icon.png")
-            else:
-                icn = QIcon(self.icon)
+            icn = self.iconFromName()
             self.item = scene.addPixmap(icn.pixmap(QSize(self.iconsize,self.iconsize)))
             self.item.setTransformationMode(QtCore.Qt.SmoothTransformation)
             self.item.setScale(self.defScale)
@@ -64,9 +57,20 @@ class IconInfo:
             return False
         return True
     
+    def iconFromName(self):
+        icn = None
+        if not QFile.exists(self.icon):
+            icn = QIcon.fromTheme(self.icon)
+            if icn.isNull():
+                icn = self.findicon()
+                if icn == None or icn.isNull():
+                    icn = QIcon(":/images/icon.png")
+        else:
+            icn = QIcon(self.icon)   
+        return icn
+    
     def changeIcon(self,icon):
-        self.icon = icon
-        icn = QIcon(self.icon)
+        icn = self.iconFromName()
         self.item.setPixmap(icn.pixmap(QSize(self.iconsize,self.iconsize)))
         
     def findicon(self):

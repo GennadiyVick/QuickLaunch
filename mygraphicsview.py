@@ -103,7 +103,7 @@ class MyGraphicsView(QtWidgets.QGraphicsView):
     
     def initContextMenu(self, pos):
         menu = QMenu(self.prnt)
-        menu.setStyleSheet("background: #222")
+        menu.setStyleSheet("background: #222; color: #aaa;")
 
         act = QAction(QIcon(":/images/css.svg"),"Стиль окна",self.prnt)
         menu.addAction(act)
