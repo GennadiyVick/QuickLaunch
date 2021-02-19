@@ -121,6 +121,17 @@ class MyGraphicsView(QtWidgets.QGraphicsView):
         act = QAction(QIcon(":/images/edit.png"),"Изменить кнопку",self.prnt)
         menu.addAction(act)
         act.triggered.connect(self.editbtn)
+
+        menu.addSeparator()
+        act = QAction(QIcon(":/images/copy.png"),"Копировать кнопку",self.prnt)
+        menu.addAction(act)
+        act.triggered.connect(self.copybtn)
+        
+        cbtext = self.prnt.qApp.clipboard().text()
+        if (cbtext != "") and ("qlid:" in cbtext):
+            act = QAction(QIcon(":/images/paste.png"),"Вставить кнопку",self.prnt)
+            menu.addAction(act)
+            act.triggered.connect(self.pastebtn)              
         
         menu.addSeparator()
         
@@ -193,11 +204,13 @@ class MyGraphicsView(QtWidgets.QGraphicsView):
         if ie.exec_() == 1:
             title = ie.ui.eTitle.text()
             icon = ie.ui.eIcon.text()
+            print(icon)
             exec = ie.ui.eExec.text()
             if len(exec) > 1 and len(icon) > 1:
                 i.exec = exec
                 i.title = title
-                i.changeIcon(icon)
+                i.icon = icon
+                i.changeIcon()
                 self.ilist.saveToFile(self.listfn)
                 
     
@@ -217,6 +230,20 @@ class MyGraphicsView(QtWidgets.QGraphicsView):
         if se.exec_() == 1:
             self.prnt.ui.centralwidget.setStyleSheet(se.ui.pEdit.toPlainText())
             self.prnt.ui.ltitle.setStyleSheet("color: "+se.tcolor.name())
+
+    def copybtn(self):
+        if self.mouseInItem < 0 or self.mouseInItem >= self.ilist.cnt(): return
+        i = self.ilist[self.mouseInItem]
+        self.prnt.qApp.clipboard().setText("qlid:"+i.title+":"+i.icon+":"+i.exec)
+        #self.copybuf.assign(i)
+    
+    def pastebtn(self):
+        cbtext = self.prnt.qApp.clipboard().text()
+        if cbtext == "": return
+        if "qlid:" in cbtext:
+            qlid = cbtext.split(":")
+            if len(qlid) > 3 and len(qlid[3]) > 1 and len(qlid[2]) > 1:
+                self.ilist.addItem(qlid[2],qlid[3],qlid[1])
     
     
     def mousePressEvent(self, event):

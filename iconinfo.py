@@ -66,10 +66,11 @@ class IconInfo:
                 if icn == None or icn.isNull():
                     icn = QIcon(":/images/icon.png")
         else:
+            print("open icon: "+self.icon)
             icn = QIcon(self.icon)   
         return icn
     
-    def changeIcon(self,icon):
+    def changeIcon(self):
         icn = self.iconFromName()
         self.item.setPixmap(icn.pixmap(QSize(self.iconsize,self.iconsize)))
         

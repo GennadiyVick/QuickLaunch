@@ -96,10 +96,6 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
             for dialog in self.dialogs:
                 dialog.activateWindow()
 
-            
-        #dialog = MainWindow(self) #Second(self)
-        #self.dialogs.append(dialog)
-        #dialog.show()
     
     def closeEvent(self,event):
         if not self.canClose:
