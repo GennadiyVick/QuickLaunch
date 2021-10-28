@@ -15,34 +15,7 @@ class DesktopParse:
             if fn.endswith(ext):
                 return True
         return False
-    
-    '''
-    @staticmethod
-    def getIconFromName(iconname):
-        """Статическая функция для нахождения полного имени файла иконки по его имени.
-            функция ищет в каталогах жёстко заданных в функции.
-            Если файл не найден, фунция вернён входящее имя"""
-        home = QDir.homePath()
-        icondirs = [home+"/.local/share/icons/hicolor/48x48/apps/",
-                          home+"/.local/share/icons/hicolor/64x64/apps/",
-                          "/usr/share/icons/hicolor/48x48/apps/",
-                          "/usr/share/icons/gnome/48x48/apps/",
-                          "/usr/share/app-install/icons/",
-                          "/usr/share/icons/hicolor/scalable/apps/",
-                          "/usr/share/icons/HighContrast/48x48/apps/"]
-        exts = [".png",".jpg",".jpeg",".bmp",".ico",".svg"]  
-        
-        if DesktopParse.extinFn(iconname,exts):
-            for dir in icondirs:
-                if QFile.exists(dir+iconname):
-                    return dir+iconname
-        else:
-            for dir in icondirs:
-                for ext in exts:
-                    if QFile.exists(dir+iconname+ext):
-                        return dir+iconname+ext
-        return iconname    
-    '''
+
     
     @staticmethod
     def parse(parent,path,lang = "[ru]"):
@@ -83,12 +56,5 @@ class DesktopParse:
                         if line.startswith("Exec="):
                             exec = line[-len(line)+5:]
         file.close()
-        #if icon != "":
-        #    if not QFile.exists(icon):
-        #        icon = DesktopParse.getIconFromName(icon)
-        #        if not QFile.exists(icon):
-        #            icon = ":/images/icon.png"
-        #else:
-        #    if title != "" and exec != "": icon = ":/images/icon.png"
         return title,icon, exec
                             

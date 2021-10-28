@@ -59,7 +59,7 @@ class Ui_QuickLaunchPanelsWindow(object):
         btn.setMinimumSize(QtCore.QSize(34, 34))
         btn.setIconSize(QtCore.QSize(24,24))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/images/"+iconname), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/"+iconname), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         btn.setIcon(icon)
         btn.setObjectName(name)
         return btn

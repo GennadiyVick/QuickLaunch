@@ -1,177 +1,196 @@
 #!/usr/bin/python3
-#
-# The program shows a pane-type window where you can move files with 
+# -*- coding: utf-8 -*-
+
+# The program to manage a pane-type windows where you can move files with
 # the .desktop extension to quickly launch programs or other commands.
-# The program takes the name of the panel as an argument, by default "Programms"
+#
 # Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 # 
-#
-# some else...
-# I bag your pardon for russian documentation of functions,
-# if you need you can translate it with google
 
+from PyQt5 import QtGui, QtCore,QtWidgets
+from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QSystemTrayIcon, \
+    QAction, QStyle, QMenu, QInputDialog, QMessageBox
+from PyQt5.QtCore import QSize,QRect, Qt, QSettings
+from PyQt5.QtGui import QIcon, QStandardItemModel
 import sys
+import json
 import os
-#import atexit
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMenu
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtWidgets import QGraphicsScene
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtGui import QPainter
-from PyQt5.QtCore import QSettings, QTimer,QPoint,Qt,QFile
 
-import images #imageresources
-import wnd #mainwindow class
-from mygraphicsview import MyGraphicsView
-
-
-class PanelWindow(QtWidgets.QWidget):
-    #Главное окно программы
-    def __init__(self, qApp, title = "Programs"):
-        """Функция создания главного окна, здесь создаём
-            графический интерфейс с MyLabel основанный на QLabel в качестве заголовка
-            и MyGraphicsView созданный на основе QGraphicsView
-            для отрисовки значков. Вся логика программы находится
-            в классе MyGraphicsView.
-            Окно не имеет обычного заголовка и рамок.
-            Программа принимает в качестве аргумента наименование
-            панели, по умолчанию 'Programms'"""
-        super(PanelWindow, self).__init__()
-        self.ui = wnd.Ui_PanelWindow() #создаём простой объект ui для 
-        self.ui.setupUi(self) #инициализируем окно, создаём компоненты и пр.
-        self.qApp = qApp
-        self.setWindowTitle(title)
-        
-        if __name__ == '__main__' and len(sys.argv)>1: #проверяем компоненты
-            self.title = sys.argv[1]
-        else:
-            self.title = title
-
-        #self.ui.ltitle.customContextMenuRequested.connect(self.openContextMenu)
-        self.ui.ltitle.setText(self.title)
-
-        set = QSettings("QuickLaunch", "config")
-        self.linkPath = os.path.dirname(set.fileName())
-        left = int(set.value(self.title+"/Pos/Left","-1"))
-        top = int(set.value(self.title+"/Pos/Top","-1"))
-        ss = set.value(self.title+"/style",self.ui.centralwidget.styleSheet())
-        self.ui.centralwidget.setStyleSheet(ss)
-        self.ui.ltitle.setStyleSheet(set.value(self.title+"/TitleColor",""))
-        
-        ''' почему то при инициализации окна стиль не устанавливается
-            поэтому я его ставлю по таймеру
-        '''
-        QTimer.singleShot(40,self.resetstyle)
-        #timer = QTimer(self)
-
-        self.listFilename = set.value(self.title+"/Filename","")
-        if self.listFilename == "" or not QFile.exists(self.listFilename):
-            self.listFilename = self.linkPath +"/"+ self.title + ".lst"
-        #==============
-        self.mx = -1
-        self.my = -1
-        #================================================    
-        self.scn = QGraphicsScene(self)
-        self.scn.setSceneRect(0,0, self.width()-6, self.height()-self.ui.ltitle.height()-6)
-        self.gv = MyGraphicsView(self,self.scn,self.listFilename,self.title)
-        self.gv.setObjectName("gv")
-        self.gv.setStyleSheet("border-width: 0px; border-style: none; outline:0px;")
-        self.ui.verticalLayout.addWidget(self.gv)
-        self.gv.setRenderHint(QPainter.Antialiasing);
-        self.gv.setScene(self.scn)
-        self.gv.show()
-
-        self.ui.ltitle.onMousePress.connect(self.mousePress)
-        self.ui.ltitle.onMouseMove.connect(self.mouseMove)
-        if left > 0:
-            if top < 0: top = 1
-            self.move(left,top)
-        else:
-            self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
-        self.ps = self.pos()
-        #atexit.register(self.onClose)
-    
-    def resetstyle(self):
-        ss = self.ui.centralwidget.styleSheet()
-        self.ui.centralwidget.setStyleSheet(ss)
-
-    def changeTitle(self,newtitle):
-        set = QSettings("QuickLaunch", "config")
-        set.remove(self.title)
-        self.title = newtitle
-        self.listFilename = self.linkPath +"/"+ self.title + ".lst"
-        if os.path.exists(self.gv.listfn):
-            os.remove(self.gv.listfn)
-        self.gv.listfn = self.listFilename
-        self.gv.ilist.saveToFile(self.listFilename)
-        self.gv.paneltitle = self.title
-        self.ui.ltitle.setText(self.title)
-        
-        self.saveConfig()
-    
-    def saveConfig(self):
-        set = QSettings("QuickLaunch", "config")
-        p = self.pos()
-        set.setValue(self.title+"/Pos/Left",p.x())
-        set.setValue(self.title+"/Pos/Top",p.y())
-        set.setValue(self.title+"/Filename",self.listFilename)
-        set.setValue(self.title+"/style",self.ui.centralwidget.styleSheet())    
-        set.setValue(self.title+"/TitleColor",self.ui.ltitle.styleSheet())
-        
-
-
-    def closeEvent(self,event):
-        """Событие выхода завершения работы приложения"""
-        self.saveConfig()
+from quicklaunchwindow import Ui_QuickLaunchPanelsWindow
+from panel import Panel
+import settings
  
 
-    def mousePress(self,event):
-        """Событие нажатия мыши на MyLabel главного окна,
-           выступающем в роли заголовка окна,
-           в данной функции  переменным присваивается глобальная
-           позиция мыши и позиция окна, для того, чтобы при
-           перемещении мыши вызывать перемещение главного окна.
-           Присоединение (connect) смотрите в функции __init__
-           главного окна"""
-        self.mx = event.globalPos().x()
-        self.my = event.globalPos().y()
-        self.ps = self.pos()
+class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        super(QuickLaunchPanelsWindow, self).__init__(None)
+        self.ui = Ui_QuickLaunchPanelsWindow()
+        self.ui.setupUi(self)
+        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
+        self.canClose = False
+        self.configdir = settings.Settings.getConfigDir()
+        self.initTray()
+        self.app = parent
+        self.canClose = False
+        self.dialogs = []
+        #self.fn = os.path.dirname(os.path.abspath(__file__))
+        #self.fn += "/panels.lst"
+        self.panels = []
+        self.model = QStandardItemModel(self);
+        self.ui.lv.setModel(self.model)
+        self.ui.lv.setStyleSheet("QListView {background: #2b2b2b; padding: 4px; border-style: inset; border-width: 1px; border-color: #90404050;border-radius: 10px;}")
+        self.ui.lv.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.lv.customContextMenuRequested.connect(self.initContextMenu)        
+        self.loadpanels()
+        self.ui.bEdit.clicked.connect(self.editclick)
+        self.ui.bAdd.clicked.connect(self.addclick)
+        self.ui.bDel.clicked.connect(self.delclick)
+        self.setWindowIcon(QIcon(':/run.png'))
 
-    def mouseMove(self,event):
-        """Событие перемещения мыши на MyLabel главного окна,
-           выступающем в роли заголовка окна,
-           в данной функции перемещаем главное окно по экрану.
-           Для более полного понимания можете глянуть документацию
-           к функции mousePress"""
-        x = event.globalPos().x()-self.mx
-        y = event.globalPos().y()-self.my
-        self.move(self.ps.x()+x,self.ps.y()+y)
-    
-    def openContextMenu(self, pos):
-        """Данная функция вызывает контекстое меню,
-            в данный момент она не работает, не вызывается"""
-        menu = QMenu()
-        menu.setStyleSheet("background: #fff")
-        quitAction = menu.addAction("Quit")
-        action = menu.exec_(self.sender().mapToGlobal(pos))
-        if action == quitAction:
-            self.qApp.quit()
+
+    def initContextMenu(self, pos):
+        menu = QMenu(self)
+        #menu.setStyleSheet("background: #222")
+        act = QAction("Показать окно",self)
+        act.triggered.connect(self.showdialog);
+        menu.addAction(act)
+        p = self.mapToGlobal(pos)
+        p.setX(p.x()+1)
+        p.setY(p.y()+1)
+        menu.exec_(p)
+
+    def showdialog(self):
+        if self.model.rowCount() == 0: return
+        i = self.ui.lv.currentIndex().row()
+        self.dialogs[i].show()
+        self.dialogs[i].onResize()
+        self.panels[i]['visible'] = True
+               
+
+    def loadpanels(self):
+        fn = self.configdir / 'panels.json'
+        if not os.path.isfile(fn): return False
+        with open(fn) as f:
+            self.panels = json.load(f)
+        for info in self.panels:
+            item = QtGui.QStandardItem(info['title'])
+            self.model.appendRow(item)
+            visible = True
+            if 'visible' in info:
+                visible = info['visible']
+            else:
+                info['visible'] = True
+            self.createdialog(info['filename'],visible)
+
+    def savepanels(self):
+        fn = self.configdir / 'panels.json'
+        with open(fn, 'w', encoding='utf-8') as f:
+            json.dump(self.panels, f, ensure_ascii=False, indent=4)
+
+    def closePanel(self,panel):
+        index = -1
+        for i in range(len(self.dialogs)):
+            if panel == self.dialogs[i]:
+                index = i
+                break
+        if index < 0: return
+        self.panels[i]['visible'] = False
             
-    def closewnd(self):
-        if __name__ == '__main__':
-            qApp.quit()
-        else:
-            self.close()
+    def createdialog(self,filename,visible,title = None):
+        dialog = Panel(self.app,filename,title)
+        self.dialogs.append(dialog)
+        dialog.onCloseSignal.connect(self.closePanel)
+        if visible: dialog.show()
+        
+    def closeDialogs(self):
+        for dialog in self.dialogs:
+            dialog.close()
+        self.dialogs.clear()
+            
+    def doQuit(self):
+        self.canClose = True
+        if self.app != None and "QApplication" in str(type(self.app)):
+            self.closeDialogs()
+            self.savepanels()
+            self.app.quit()
+        
+        
+    def trayclick(self, i_reason):
+        if i_reason == 3: # buttons & Qt.LeftButton:
+            for dialog in self.dialogs:
+                dialog.activateWindow()
 
+    
+    def closeEvent(self,event):
+        if not self.canClose:
+            event.ignore()
+            self.hide()
+        else: self.closeDialogs()
+
+    
+    def initTray(self):
+        self.tray = QSystemTrayIcon(self)
+        self.tray.setIcon(QIcon(":/run.png")) #QIcon.fromTheme("preferences-system"))
+        
+        show_action = QAction("Показать список",self)
+        quit_action = QAction("Выход",self)
+        #hide_action = QAction("Hide",self)
+        
+        show_action.triggered.connect(self.show)
+        quit_action.triggered.connect(self.doQuit)
+        #hide_action.triggered.connect(self.hide)
+        
+        traymenu = QMenu()
+        traymenu.addAction(show_action)
+        #traymenu.addAction(hide_action)
+        traymenu.addAction(quit_action)
+        self.tray.setContextMenu(traymenu)
+        self.tray.activated.connect(self.trayclick)
+        self.tray.show()
+
+    def editclick(self):
+        if self.model.rowCount() == 0: return
+        i = self.ui.lv.currentIndex().row()
+        txt = self.ui.lv.currentIndex().data()
+        text, ok = QInputDialog.getText(self, 'Заголовок панели', 'Введите имя панели:',text=txt)
+        if ok and txt != text:
+            self.panels[i]['title'] = text
+            self.dialogs[i].changeTitle(text)
+            self.model.item(i).setText(text)
+        self.savepanels()
+
+    def addclick(self):
+        text, ok = QInputDialog.getText(self, 'Заголовок панели', 'Введите имя панели:')
+        if ok and len(text) > 1:
+            fn = "".join(x for x in text if x.isalnum())
+            fn += '.json'
+            item = QtGui.QStandardItem(text)
+            self.model.appendRow(item)
+            self.panels.append({'title':text, 'filename':fn})
+            self.createdialog(fn,True,text)
+            
+    def delclick(self):
+        if self.model.rowCount() == 0: return
+        i = self.ui.lv.currentIndex().row()
+        reply = QMessageBox.question(self, "Внимание!!", "Удалить панель со значками?", QMessageBox.Yes|QMessageBox.No)
+        if reply != QMessageBox.Yes: return
+        panelname = self.panels[i]['title']
+        fn = self.configdir / self.panels[i]['filename']
+        if os.path.exists(fn): os.remove(fn)
+        self.dialogs[i].close()
+        self.dialogs.pop(i)
+        self.panels.pop(i)
+        self.model.removeRow(i)
+
+
+ 
+ 
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    panelWindow = PanelWindow(app)
-    panelWindow.show()
+    app.setQuitOnLastWindowClosed(False)
+    main = QuickLaunchPanelsWindow(app)
+    #main.show()
     sys.exit(app.exec_())
-    
+ 
 if __name__ == '__main__':
     main()
-

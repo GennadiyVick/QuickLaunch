@@ -71,5 +71,33 @@ class IconEditWindow(QtWidgets.QDialog):
     def cancelclick(self):
         self.reject()
     def okclick(self):
-        self.accept()      
+        self.accept()
+
+def iconEdit(item):
+    ie = IconEditWindow()
+    ie.ui.eTitle.setText(item.title)
+    ie.ui.eExec.setText(item.exec)
+    ie.ui.eIcon.setText(item.icon)
+    if ie.exec_() == 1:
+        title = ie.ui.eTitle.text()
+        icon = ie.ui.eIcon.text()
+        exec = ie.ui.eExec.text()
+        if len(icon) > 0 and len(exec) >0:
+            shlIconChange = item.icon != icon
+            item.title = title
+            item.icon = icon
+            item.exec = exec
+            item.changeIcon()
+            return True
+    return False
+
+def iconAdd():
+    ie = IconEditWindow()
+    if ie.exec_() == 1:
+        title = ie.ui.eTitle.text()
+        icon = ie.ui.eIcon.text()
+        exec = ie.ui.eExec.text()
+        if len(icon) > 0 and len(exec) >0:
+            return True,title,icon,exec
+    return False,'','',''
         

@@ -1,7 +1,7 @@
 QuickLaunch.
 
 The program creates panel-type windows to quickly launch applications. You can add launch buttons via the panel context menu, or by dragging and dropping a .desktop file onto the panel
-To run the program, run the quicklaunchpanels.py file, also if you need only one panel-type window you can run quicklaunch.py with a title name as argument.
+To run the program, run the quicklaunch.py file.
 
 
 Attention! The program is designed to run on Linux OS,
