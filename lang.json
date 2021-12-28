@@ -44,8 +44,5 @@
 "title": {"default": "Title:", "ru": "Заголовок:"},
 "edit_launch": {"default": "Edit launch", "ru": "Редактировать запуск"},
 "icon_filename": {"default": "Icon file name:", "ru": "Файл иконки:"},
-"launch_command": {"default": "Launch command:", "ru": "Комманда запуска:"},
-"": {"default": "", "ru": ""},
-"": {"default": "", "ru": ""},
-"": {"default": "", "ru": ""}
+"launch_command": {"default": "Launch command:", "ru": "Комманда запуска:"}
 }

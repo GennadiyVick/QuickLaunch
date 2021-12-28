@@ -164,6 +164,7 @@ class Panel(QWidget):
                     self.glist.reposItems(gr.index+1,True)
                 if not self.anitimer.isActive(): self.anitimer.start(30)
             self.glist.savetosets()
+            self.sets.save()
         elif action == addItemAction:
             self.doAddItem(self.menuitem.parent)
         elif action == editgroupAction:
@@ -195,11 +196,15 @@ class Panel(QWidget):
     def doDelGroup(self,gr):
         self.glist.delete(gr.index)
         self.setSceneRect()
+        self.glist.savetosets()
+        self.sets.save()
 
     def doAddItem(self,gr):
         add,title,icon,exec = iconedit.iconAdd(self.lang)
         if not add: return
         self.appendIcon(gr.index,title,icon,exec)
+        self.glist.savetosets()
+        self.sets.save()
 
     def doEditGroup(self,gr):
         i = gr.index
@@ -224,7 +229,8 @@ class Panel(QWidget):
                     self.glist.reposItems(gr.index+1,True)
                     if not self.anitimer.isActive(): self.anitimer.start(30)
                 self.setSceneRect()
-
+        self.glist.savetosets()
+        self.sets.save()
 
     def applysets(self):
         QTimer.singleShot(50, self.applystyle)
@@ -234,6 +240,8 @@ class Panel(QWidget):
     def changeTitle(self,title):
         self.ui.ltitle.setText(title)
         self.sets.set('title',title)
+        self.glist.savetosets()
+        self.sets.save()
 
     def applystyle(self):
         style = self.sets.get('window.style', self.ui.centralwidget.styleSheet())
@@ -401,6 +409,8 @@ class Panel(QWidget):
         if r.height() < self.glist.height():
             self.setSceneRect()
         if not self.anitimer.isActive(): self.anitimer.start(30)
+        self.glist.savetosets()
+        self.sets.save()
 
     def appendIcon(self,groupIndex,title,icon,exec):
         gr = self.glist[groupIndex]
@@ -418,8 +428,11 @@ class Panel(QWidget):
         if r.height() < self.glist.height():
             self.setSceneRect()
         if not self.anitimer.isActive(): self.anitimer.start(30)
+        self.glist.savetosets()
+        self.sets.save()
 
     def dropEvent(self,view, event):
+        changed = False
         if event.mimeData().hasUrls:
             event.setDropAction(Qt.CopyAction)
             event.accept()
@@ -470,8 +483,8 @@ class Panel(QWidget):
                         self.appendIcon(gri,title,icon,exec)
                     else:
                         self.insertIcon(gri,ii,title,icon,exec)
-
                     self.glist.savetosets()
+                    self.sets.save()
 
 
 
