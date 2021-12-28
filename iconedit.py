@@ -12,9 +12,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_IconEditWindow(object):
-    def setupUi(self, IconEditWindow):
+    def setupUi(self, IconEditWindow,lang):
         IconEditWindow.setObjectName("IconEditWindow")
         IconEditWindow.resize(394, 227)
+        self.lang = lang
         self.verticalLayout = QtWidgets.QVBoxLayout(IconEditWindow)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -51,19 +52,18 @@ class Ui_IconEditWindow(object):
         QtCore.QMetaObject.connectSlotsByName(IconEditWindow)
 
     def retranslateUi(self, IconEditWindow):
-        _translate = QtCore.QCoreApplication.translate
-        IconEditWindow.setWindowTitle(_translate("IconEditWindow", "Редактировать запуск"))
-        self.label.setText(_translate("IconEditWindow", "Заголовок"))
-        self.label_2.setText(_translate("IconEditWindow", "Файл иконки"))
-        self.label_3.setText(_translate("IconEditWindow", "Комманда запуска"))
-        self.okbtn.setText(_translate("IconEditWindow", "OK"))
-        self.cancelbtn.setText(_translate("IconEditWindow", "Отмена"))
+        IconEditWindow.setWindowTitle(self.lang.tr("edit_launch"))
+        self.label.setText(self.lang.tr("title"))
+        self.label_2.setText(self.lang.tr("icon_filename"))
+        self.label_3.setText(self.lang.tr("launch_command"))
+        self.okbtn.setText("OK")
+        self.cancelbtn.setText(self.lang.tr("cancel"))
         
 class IconEditWindow(QtWidgets.QDialog):
-    def __init__(self, parent= None):
+    def __init__(self, lang, parent= None):
         super(IconEditWindow, self).__init__(parent)
         self.ui = Ui_IconEditWindow()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self,lang)
         self.ui.cancelbtn.clicked.connect(self.cancelclick)
         self.ui.okbtn.clicked.connect((self.okclick))
         self.setWindowFlags(QtCore.Qt.Tool)
@@ -73,8 +73,8 @@ class IconEditWindow(QtWidgets.QDialog):
     def okclick(self):
         self.accept()
 
-def iconEdit(item):
-    ie = IconEditWindow()
+def iconEdit(item, lang):
+    ie = IconEditWindow(lang)
     ie.ui.eTitle.setText(item.title)
     ie.ui.eExec.setText(item.exec)
     ie.ui.eIcon.setText(item.icon)
@@ -91,8 +91,8 @@ def iconEdit(item):
             return True
     return False
 
-def iconAdd():
-    ie = IconEditWindow()
+def iconAdd(lang):
+    ie = IconEditWindow(lang)
     if ie.exec_() == 1:
         title = ie.ui.eTitle.text()
         icon = ie.ui.eIcon.text()

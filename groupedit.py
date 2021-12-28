@@ -9,9 +9,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Dialog(object):
-    def setupUi(self, Dialog):
+    def setupUi(self, Dialog, lang):
         Dialog.setObjectName("Dialog")
         Dialog.resize(302, 125)
+        self.lang = lang
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.widget = QtWidgets.QWidget(Dialog)
@@ -41,22 +42,21 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Группа значков"))
-        self.label.setText(_translate("Dialog", "Заголовок:"))
-        self.cbiconwithtext.setText(_translate("Dialog", "Иконки в виде списка"))
+        Dialog.setWindowTitle(self.lang.tr("icon_group"))
+        self.label.setText(self.lang.tr("title"))
+        self.cbiconwithtext.setText(self.lang.tr("icon_viewlist"))
 
 class GroupEditWindow(QtWidgets.QDialog):
-    def __init__(self, parent= None):
+    def __init__(self, lang, parent= None):
         super(GroupEditWindow, self).__init__(parent)
         self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self,lang)
         #self.ui.cancelbtn.clicked.connect(self.cancelclick)
         #self.ui.okbtn.clicked.connect((self.okclick))
         self.setWindowFlags(QtCore.Qt.Tool)
 
-def groupEdit(group):
-    ge = GroupEditWindow()
+def groupEdit(group, lang):
+    ge = GroupEditWindow(lang)
     title = group.title
     withtext = group.withtext
     ge.ui.lineEdit.setText(title)
@@ -66,8 +66,8 @@ def groupEdit(group):
         withtext = ge.ui.cbiconwithtext.isChecked()
     return title, withtext
 
-def groupAdd(withText = False):
-    ge = GroupEditWindow()
+def groupAdd(lang,withText = False):
+    ge = GroupEditWindow(lang)
     title = ''
     withtext = withText
     ge.ui.lineEdit.setText(title)

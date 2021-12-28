@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Dialog(object):
-    def setupUi(self, Dialog):
+    def setupUi(self, Dialog, lang):
         Dialog.setObjectName("Dialog")
         Dialog.resize(559, 411)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -19,6 +19,7 @@ class Ui_Dialog(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Dialog.sizePolicy().hasHeightForWidth())
         Dialog.setSizePolicy(sizePolicy)
+        self.lang = lang
         self.mainLayout = QtWidgets.QVBoxLayout(Dialog)
         self.mainLayout.setContentsMargins(2, 2, 2, 2)
         self.mainLayout.setSpacing(0)
@@ -272,35 +273,34 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.label.setText(_translate("Dialog", "Размер загружаемой иконки:"))
-        self.label_2.setText(_translate("Dialog", "Размер отображаемой иконки:"))
-        self.label_3.setText(_translate("Dialog", "Размер увеличенной иконки:"))
-        self.cbWithText.setText(_translate("Dialog", "Вид иконок - список"))
-        self.cbShaddow.setText(_translate("Dialog", "Тень иконок"))
-        self.bShaddowColor.setText(_translate("Dialog", "Цвет тени:"))
-        self.label_7.setText(_translate("Dialog", "Смещение:"))
-        self.label_8.setText(_translate("Dialog", "Размытие:"))
-        self.bTextColor.setText(_translate("Dialog", "Цвет текста в списке:"))
-        self.label_4.setText(_translate("Dialog", "Стиль окна:"))
-        self.pEdit.setPlainText(_translate("Dialog", "QWidget#centralwidget {\n"
+        Dialog.setWindowTitle(self.lang.tr("settings"))
+        self.label.setText(self.lang.tr("size_loadedicon"))
+        self.label_2.setText(self.lang.tr("size_displayedicon"))
+        self.label_3.setText(self.lang.tr("size_scaledicon"))
+        self.cbWithText.setText(self.lang.tr("icon_viewlist"))
+        self.cbShaddow.setText(self.lang.tr("shaddow_icons"))
+        self.bShaddowColor.setText(self.lang.tr("shaddow_color"))
+        self.label_7.setText(self.lang.tr("offset"))
+        self.label_8.setText(self.lang.tr("blur"))
+        self.bTextColor.setText(self.lang.tr("list_textcolor"))
+        self.label_4.setText(self.lang.tr("window_style"))
+        self.pEdit.setPlainText("QWidget#centralwidget {\n"
 "    background: #90202020;\n"
 "    border-style: inset;\n"
 "    border-width: 1px;\n"
 "    border-color: #a0404050;\n"
 "    border-radius: 10px;}\n"
 "\n"
-""))
-        self.label_5.setText(_translate("Dialog", "Пример:"))
-        self.bUpdate.setText(_translate("Dialog", "Обновить пример"))
-        self.label_9.setText(_translate("Dialog", "Заголовок окна:"))
-        self.bTitleColor.setText(_translate("Dialog", "Цвет заголовка окна"))
-        self.bMenuBgColor.setText(_translate("Dialog", "Цвет фона меню"))
-        self.bMenuColor.setText(_translate("Dialog", "Цвет текста меню"))
-        self.bGroupTitleBorderColor.setText(_translate("Dialog", "Цвет рамки"))
-        self.bGroupTitleBgColor.setText(_translate("Dialog", "Цвет фона"))
-        self.bGroupTitleColor.setText(_translate("Dialog", "Цвет текста "))
-        self.label_6.setText(_translate("Dialog", "Заголовок группы:"))
-        self.bOk.setText(_translate("Dialog", "OK"))
-        self.bCancel.setText(_translate("Dialog", "Отмена"))
+"")
+        self.label_5.setText(self.lang.tr("example"))
+        self.bUpdate.setText(self.lang.tr("update_example"))
+        self.label_9.setText(self.lang.tr("window_caption"))
+        self.bTitleColor.setText(self.lang.tr("window_titlecolor"))
+        self.bMenuBgColor.setText(self.lang.tr("menu_backgroundcolor"))
+        self.bMenuColor.setText(self.lang.tr("menu_textcolor"))
+        self.bGroupTitleBorderColor.setText(self.lang.tr("border_color"))
+        self.bGroupTitleBgColor.setText(self.lang.tr("background_color"))
+        self.bGroupTitleColor.setText(self.lang.tr("text_color"))
+        self.label_6.setText(self.lang.tr("group_title"))
+        self.bOk.setText("OK")
+        self.bCancel.setText(self.lang.tr("cancel"))

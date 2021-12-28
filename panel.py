@@ -11,7 +11,7 @@ from settingsdialog import SettingsDialog
 from settings import Settings
 from itemlist import GroupList
 from myitem import Item
-from desktopparse import DesktopParse
+import desktopparse
 import iconedit
 import groupedit
 
@@ -23,11 +23,12 @@ class Panel(QWidget):
     onCloseSignal  = QtCore.pyqtSignal(QWidget)
 
     cdir = Settings.getConfigDir()
-    def __init__(self, qApp, setfn = 'Programms.json', title = None):
+    def __init__(self, qApp, setfn = 'Programms.json', title = None, lang = None):
         super(Panel, self).__init__()
         if not os.path.isdir(self.cdir):
             os.makedirs(self.cdir)
         self.qApp = qApp
+        self.lang = lang
         self.ui = Ui_panelwindow()
         self.ui.setupUi(self)
         self.ui.ltitle.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -82,27 +83,27 @@ class Panel(QWidget):
     def titleContextMenu(self, pos):
         menu = QMenu()
         menu.setStyleSheet('background: '+self.sets.get('window.menubgcolor','#222')+'; color: '+self.sets.get('window.menucolor','#fff')+'; padding: 6px;')
-        settingsAction = menu.addAction("Настройка")
+        settingsAction = menu.addAction(self.lang.tr("settings"))
         settingsAction.setIcon(QIcon(':/set.png'))
         menu.addSeparator()
-        addgroupAction = menu.addAction('Добавить группу')
+        addgroupAction = menu.addAction(self.lang.tr('add_group'))
         addgroupAction.setIcon(QIcon(':/addgroup.png'))
         menu.addSeparator()
-        quitAction = menu.addAction("Quit")
+        quitAction = menu.addAction(self.lang.tr('quit'))
         quitAction.setIcon(QIcon(':/quit.png'))
         action = menu.exec_(self.sender().mapToGlobal(pos))
         if action == quitAction:
             self.onCloseSignal.emit(self)
             self.close()
         elif action == settingsAction:
-            dialog = SettingsDialog(self.sets, self)
+            dialog = SettingsDialog(self.sets,self.lang, self)
             dialog.loadfromsets()
             if dialog.exec() == 1:
                 dialog.savetosets()
                 self.sets.save()
                 self.applysets()
         elif action == addgroupAction:
-            shladd, title, withtext = groupedit.groupAdd(self.sets.get('panel.withtext',False))
+            shladd, title, withtext = groupedit.groupAdd(self.lang,self.sets.get('panel.withtext',False))
             if shladd:
                 self.glist.addList(title, (0,0),withtext)
 
@@ -126,17 +127,17 @@ class Panel(QWidget):
 
         menu = QMenu()
         menu.setStyleSheet('background: '+self.sets.get('window.menubgcolor','#222')+'; color: '+self.sets.get('window.menucolor','#fff')+'; padding: 6px;')
-        changeAction = menu.addAction("Изменить")
+        changeAction = menu.addAction(self.lang.tr("change"))
         changeAction.setIcon(QIcon(':/edit.png'))
         menu.addSeparator()
-        delAction = menu.addAction("Удалить")
+        delAction = menu.addAction(self.lang.tr("remove"))
         delAction.setIcon(QIcon(':/delete.png'))
         menu.addSeparator()
-        addItemAction = menu.addAction("Добавить значёк")
+        addItemAction = menu.addAction(self.lang.tr("add_link"))
         addItemAction.setIcon(QIcon(':/add.png'))
-        editgroupAction = menu.addAction("Изменить группу")
+        editgroupAction = menu.addAction(self.lang.tr("change_group"))
         editgroupAction.setIcon(QIcon(':/editgroup.png'))
-        delgroupAction = menu.addAction("Удалить группу")
+        delgroupAction = menu.addAction(self.lang.tr("remove_group"))
         delgroupAction.setIcon(QIcon(':/delgroup.png'))
         openDirAction = None
         self.menuitem = self.glist[self.groupitem][self.focusitem]
@@ -144,12 +145,12 @@ class Panel(QWidget):
         if (len(path) > 0) and os.path.isdir(path):
             #self.openpath = path
             menu.addSeparator()
-            openDirAction = menu.addAction("Открыть каталог")
+            openDirAction = menu.addAction(self.lang.tr("open_folder"))
             openDirAction.setIcon(QIcon(':/quit.png'))
         action = menu.exec_(self.sender().mapToGlobal(pos))
         if action == None: return
         if action == changeAction:
-            if iconedit.iconEdit(self.menuitem):
+            if iconedit.iconEdit(self.menuitem,self.lang):
                 if self.menuitem.__class__.__name__ == 'GTItem':
                     texcol = self.sets.get('panel.textcolor','#80000000')
                     self.menuitem.titem.setHtml(f'<div style="color: {texcol}">{self.menuitem.title}</div>')
@@ -176,11 +177,11 @@ class Panel(QWidget):
     def groupContextMenu(self,pos,gr):
         menu = QMenu()
         menu.setStyleSheet('background: '+self.sets.get('window.menubgcolor','#222')+'; color: '+self.sets.get('window.menucolor','#fff')+'; padding: 6px;')
-        addItemAction = menu.addAction("Добавить значёк")
+        addItemAction = menu.addAction(self.lang.tr("add_link"))
         addItemAction.setIcon(QIcon(':/add.png'))
-        editgroupAction = menu.addAction("Изменить группу")
+        editgroupAction = menu.addAction(self.lang.tr("change_group"))
         editgroupAction.setIcon(QIcon(':/editgroup.png'))
-        delgroupAction = menu.addAction("Удалить группу")
+        delgroupAction = menu.addAction(self.lang.tr("remove_group"))
         delgroupAction.setIcon(QIcon(':/delgroup.png'))
         action = menu.exec_(self.sender().mapToGlobal(pos))
         if action == None: return
@@ -196,13 +197,13 @@ class Panel(QWidget):
         self.setSceneRect()
 
     def doAddItem(self,gr):
-        add,title,icon,exec = iconedit.iconAdd()
+        add,title,icon,exec = iconedit.iconAdd(self.lang)
         if not add: return
         self.appendIcon(gr.index,title,icon,exec)
 
     def doEditGroup(self,gr):
         i = gr.index
-        title,withtext = groupedit.groupEdit(gr)
+        title,withtext = groupedit.groupEdit(gr,self.lang)
         if withtext != gr.withtext:
             grps = self.sets.sets['groups']
             grps[i]['withtext'] = withtext
@@ -424,7 +425,7 @@ class Panel(QWidget):
             event.accept()
             for url in event.mimeData().urls():
                 fn = str(url.toLocalFile())
-                title,icon,exec = DesktopParse().parse(self, fn)
+                title,icon,exec = desktopparse.parse(self, fn, self.lang)
                 if title != "" and icon != "" and exec != "":
                     gri = 0
                     ii = -1

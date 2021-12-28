@@ -82,7 +82,7 @@ class Settings():
         return True
 
     def getConfigDir():
-        """Returns a platform-specific root directory for user config settings."""
+        """Returns a platform-specific directory for user config settings."""
         if os.name == "nt":
             appdata = os.getenv("LOCALAPPDATA")
             if appdata:

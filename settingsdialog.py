@@ -4,14 +4,15 @@ from settingsdialogwindow import Ui_Dialog
 
 
 class SettingsDialog(QDialog):
-    def __init__(self, sets,parent = None):
+    def __init__(self, sets,lang,parent = None):
         super(SettingsDialog,self).__init__(parent)
+        self.lang = lang
         self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self,lang)
         self.sets = sets
         self.lvmodel = QStandardItemModel(self);
         self.ui.lv.setModel(self.lvmodel)
-        setpages = ['Панель иконок','Настройка окна','Настройка группы']
+        setpages = [self.lang.tr('icon_panel'),self.lang.tr('window_settings'),self.lang.tr('group_settings')]
         for page in setpages:
             item = QStandardItem(page)
             self.lvmodel.appendRow(item)

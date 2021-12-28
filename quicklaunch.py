@@ -15,6 +15,7 @@ from PyQt5.QtGui import QIcon, QStandardItemModel
 import sys
 import json
 import os
+from lang import Lang
 
 from quicklaunchwindow import Ui_QuickLaunchPanelsWindow
 from panel import Panel
@@ -25,7 +26,8 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(QuickLaunchPanelsWindow, self).__init__(None)
         self.ui = Ui_QuickLaunchPanelsWindow()
-        self.ui.setupUi(self)
+        self.lang = Lang()
+        self.ui.setupUi(self,self.lang)
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
         self.canClose = False
         self.configdir = settings.Settings.getConfigDir()
@@ -51,7 +53,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
     def initContextMenu(self, pos):
         menu = QMenu(self)
         #menu.setStyleSheet("background: #222")
-        act = QAction("Показать окно",self)
+        act = QAction(self.lang.tr('show_window'),self)
         act.triggered.connect(self.showdialog);
         menu.addAction(act)
         p = self.mapToGlobal(pos)
@@ -97,7 +99,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         self.panels[i]['visible'] = False
             
     def createdialog(self,filename,visible,title = None):
-        dialog = Panel(self.app,filename,title)
+        dialog = Panel(self.app,filename,title,self.lang)
         self.dialogs.append(dialog)
         dialog.onCloseSignal.connect(self.closePanel)
         if visible: dialog.show()
@@ -132,8 +134,8 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         self.tray = QSystemTrayIcon(self)
         self.tray.setIcon(QIcon(":/run.png")) #QIcon.fromTheme("preferences-system"))
         
-        show_action = QAction("Показать список",self)
-        quit_action = QAction("Выход",self)
+        show_action = QAction(self.lang.tr("show_list"),self)
+        quit_action = QAction(self.lang.tr("quit"),self)
         #hide_action = QAction("Hide",self)
         
         show_action.triggered.connect(self.show)
@@ -152,7 +154,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         if self.model.rowCount() == 0: return
         i = self.ui.lv.currentIndex().row()
         txt = self.ui.lv.currentIndex().data()
-        text, ok = QInputDialog.getText(self, 'Заголовок панели', 'Введите имя панели:',text=txt)
+        text, ok = QInputDialog.getText(self, self.lang.tr('panel_caption'), self.lang.tr('enter_panelname'),text=txt)
         if ok and txt != text:
             self.panels[i]['title'] = text
             self.dialogs[i].changeTitle(text)
@@ -160,7 +162,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         self.savepanels()
 
     def addclick(self):
-        text, ok = QInputDialog.getText(self, 'Заголовок панели', 'Введите имя панели:')
+        text, ok = QInputDialog.getText(self, self.lang.tr('panel_caption'), self.lang.tr('enter_panelname'))
         if ok and len(text) > 1:
             fn = "".join(x for x in text if x.isalnum())
             fn += '.json'
@@ -172,7 +174,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
     def delclick(self):
         if self.model.rowCount() == 0: return
         i = self.ui.lv.currentIndex().row()
-        reply = QMessageBox.question(self, "Внимание!!", "Удалить панель со значками?", QMessageBox.Yes|QMessageBox.No)
+        reply = QMessageBox.question(self, self.lang.tr("attention"), self.lang.tr("remove_panel"), QMessageBox.Yes|QMessageBox.No)
         if reply != QMessageBox.Yes: return
         panelname = self.panels[i]['title']
         fn = self.configdir / self.panels[i]['filename']

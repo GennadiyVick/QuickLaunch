@@ -13,15 +13,17 @@ import images
 
 
 class Ui_QuickLaunchPanelsWindow(object):
-    def setupUi(self, QuickLaunchPanelsWindow):
+    def setupUi(self, QuickLaunchPanelsWindow, lang):
         QuickLaunchPanelsWindow.setObjectName("QuickLaunchPanelsWindow")
         QuickLaunchPanelsWindow.resize(250, 230)
+        self.lang = lang
         self.centralwidget = QtWidgets.QWidget(QuickLaunchPanelsWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setStyleSheet("background: #222; color: #aaa;")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout.setContentsMargins(10, 0, 10, 0)
+
 
         self.lv = QtWidgets.QListView(QuickLaunchPanelsWindow)        
         self.lv.setObjectName("lv")
@@ -50,7 +52,7 @@ class Ui_QuickLaunchPanelsWindow(object):
         
         
         QuickLaunchPanelsWindow.setCentralWidget(self.centralwidget)        
-        self.retranslateUi(QuickLaunchPanelsWindow)
+        self.tr(QuickLaunchPanelsWindow)
         QtCore.QMetaObject.connectSlotsByName(QuickLaunchPanelsWindow)
         
         
@@ -78,7 +80,6 @@ class Ui_QuickLaunchPanelsWindow(object):
         if vpol: sizePolicy.setVerticalStretch(1)
         return sizePolicy
 
-    def retranslateUi(self, QuickLaunchPanelsWindow):
-        _translate = QtCore.QCoreApplication.translate
-        QuickLaunchPanelsWindow.setWindowTitle(_translate("QuickLaunchPanelsWindow", "Панели быстрого запуска приложений"))
+    def tr(self, QuickLaunchPanelsWindow):
+        QuickLaunchPanelsWindow.setWindowTitle(self.lang.tr("QuickLaunchPanelsWindow"))
 
