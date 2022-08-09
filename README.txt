@@ -26,7 +26,8 @@ python -m pip install pyqt5
 the program will download and install the module.
 To run this program, you must enter in the console
 
-python program_path\quicklaunchpanels.py
+python program_path\quicklaunch.py or
+pythonw program_path\quicklaunch.py to run without terminal
 
 You can also create a launch shortcut on the desktop
 

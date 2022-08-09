@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'window.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# base  window class / used only in panelwindow class /
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 #
-# WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
@@ -177,6 +174,35 @@ class Ui_window(object):
     def ltitleMouseMove(self, event):
         t = event.globalY()-self.ltitle.my+self.t
         l = event.globalX()-self.ltitle.mx+self.l
+        w = self.window.width()
+        h = self.window.height()
+        dist = 2
+        sdist = 20
+        for d in self.window.mainwindow.dialogs:
+            if not d.isVisible(): continue
+            x = d.pos().x()
+            y = d.pos().y()
+            dw = d.width()
+            dh = d.height()
+            if t > y-h+dist and  t < y + dh - dist:
+                if l > x - w - sdist and l <  x - w + sdist:
+                    l = x - w - dist
+                    if t > y - sdist and t < y+ sdist: t = y
+                    break
+                elif l > x + dw - sdist and l < x + dw + sdist:
+                    l = x + dw + dist
+                    if t > y - sdist and t < y+ sdist: t = y
+                    break
+            elif l > x-w+dist and l < x+dw-dist:
+                if t > y - h - sdist and t < y - h + sdist:
+                    t = y - h - dist
+                    if l > x - sdist and l < x + sdist: l = x
+                    break
+                elif t > y + dh - sdist and t < y + sdist + dh:
+                    t = y + dh + dist
+                    if l > x - sdist and l < x + sdist: l = x
+                    break
+
         self.window.move(l,t)
 
     def ltitleMouseRelease(self, event):

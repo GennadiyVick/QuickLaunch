@@ -1,4 +1,7 @@
-
+#
+# panel  window class
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
+#
 from window import Ui_window
 from mygraphicsview import MyGraphicsView
 

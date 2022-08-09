@@ -41,6 +41,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         self.model = QStandardItemModel(self);
         self.ui.lv.setModel(self.model)
         self.ui.lv.setStyleSheet("QListView {background: #2b2b2b; padding: 4px; border-style: inset; border-width: 1px; border-color: #90404050;border-radius: 10px;}")
+
         self.ui.lv.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.lv.customContextMenuRequested.connect(self.initContextMenu)        
         self.loadpanels()
@@ -99,7 +100,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         self.panels[i]['visible'] = False
             
     def createdialog(self,filename,visible,title = None):
-        dialog = Panel(self.app,filename,title,self.lang)
+        dialog = Panel(self,filename,title)
         self.dialogs.append(dialog)
         dialog.onCloseSignal.connect(self.closePanel)
         if visible: dialog.show()

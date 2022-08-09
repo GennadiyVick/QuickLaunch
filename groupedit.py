@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'groupedit.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# edit group dialog
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 #
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Dialog(object):
@@ -65,6 +61,17 @@ def groupEdit(group, lang):
         title = ge.ui.lineEdit.text()
         withtext = ge.ui.cbiconwithtext.isChecked()
     return title, withtext
+
+def groupedit(title, withtext, lang):
+    ge = GroupEditWindow(lang)
+    ge.ui.lineEdit.setText(title)
+    ge.ui.cbiconwithtext.setChecked(withtext)
+    if ge.exec_() == 1:
+        title = ge.ui.lineEdit.text()
+        withtext = ge.ui.cbiconwithtext.isChecked()
+        return True, title, withtext
+    else:
+        return False, '', False
 
 def groupAdd(lang,withText = False):
     ge = GroupEditWindow(lang)

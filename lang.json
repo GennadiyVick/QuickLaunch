@@ -11,7 +11,7 @@
 "add_group": {"default":"Add group","ru":"Добавить группу"},
 "change": {"default":"Change","ru":"Изменить"},
 "remove": {"default":"Remove","ru":"Удалить"},
-"add_link": {"default":"Add link","ru":"Добавить значёк"},
+"add_link": {"default":"Add link","ru":"Добавить кнопку запуска"},
 "change_group": {"default":"Change group","ru":"Изменить группу"},
 "remove_group": {"default":"Remove group","ru":"Удалить группу"},
 "open_folder": {"default":"Open folder","ru":"Открыть каталог"},
@@ -44,5 +44,9 @@
 "title": {"default": "Title:", "ru": "Заголовок:"},
 "edit_launch": {"default": "Edit launch", "ru": "Редактировать запуск"},
 "icon_filename": {"default": "Icon file name:", "ru": "Файл иконки:"},
-"launch_command": {"default": "Launch command:", "ru": "Комманда запуска:"}
+"launch_command": {"default": "Launch command:", "ru": "Комманда запуска:"},
+"icon_list": {"default": "Icon list", "ru": "Список значков"},
+"il_remove_group": {"default":"Remove group with all icons?","ru":"Удалить группу со значками?"},
+"il_remove": {"default":"Remove icon?","ru":"Удалить кнопку запуска?"},
+"iconlisttitle": {"default":"Icon list","ru":"Список значков"}
 }

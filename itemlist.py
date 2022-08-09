@@ -1,3 +1,7 @@
+#
+# GroupList, ItemList classes
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
+#
 from myitem import TItem,GItem,GTItem, RItem
 from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QColor, QBrush
@@ -8,6 +12,7 @@ class GroupList(list):
         self.sets = sets
         self.scene = scene
         self.gv = gv
+
 
     def addList(self, title = '', startPos = (0,0), withText = None, shlrepos = True):
         withtext = withText
@@ -20,6 +25,7 @@ class GroupList(list):
         return l
 
     def reposItems(self, startIndex = 0, animate = False):
+        #print('reposItems, startIndex = ',startIndex,'animate = ',animate)
         if startIndex == 0:
             pos = 0
         else:
@@ -27,6 +33,7 @@ class GroupList(list):
         for i in range(startIndex,len(self)):
             l = self[i]
             l.setStartPos((0,pos),animate)
+            #print(f'[{l.title}]', f'l({i}).startpos = ',l.startpos)
             pos += l.height
 
     def height(self):
@@ -43,8 +50,8 @@ class GroupList(list):
             self.scene.removeItem(l.trect)
         while len(l) > 0:
             l.delitem(0, repos = False)
-        #self.pop(index)
-        del self[index]
+        self.pop(index)
+        #del self[index]
         if (index < len(self)) and repos:
             self.reposItems(index)
         self.reindex()
@@ -74,13 +81,16 @@ class GroupList(list):
         self.sets.sets['groups'] = gl
 
     def loadfromsets(self,signals,repos = True):
+        #print('begin load')
         while len(self) > 0: self.delete(0, False)
         rcontent = self.gv.contentsRect();
         if not ('groups' in self.sets.sets): return
         for gr in self.sets.sets['groups']:
-            gl = self.addList(gr['title'], (0,0), withText = gr['withtext'], shlrepos = False)
-            for item in gr['items']:
-                item = gl.addItem(signals,item['title'],item['icon'],item['exec'], False)
+            #print('add list',f"[{gr['title']}]",len(gr['items']))
+            if len(gr['items']) > 0:
+                gl = self.addList(gr['title'], (0,0), withText = gr['withtext'], shlrepos = False)
+                for item in gr['items']:
+                    item = gl.addItem(signals,item['title'],item['icon'],item['exec'], False)
         if repos: self.reposItems()
         self.reindex()
 
@@ -95,6 +105,7 @@ class ItemList(list):
         self.titem = None
         self.trect = None
         self.title = ''
+        self.titletext = title
         self.index = -1
         self.startpos = startPos
         self.deficonsize = self.sets.get('panel.defaulticonsize', 48)
@@ -144,22 +155,27 @@ class ItemList(list):
             self.scene.addItem(self.trect)
             self.trect.setZValue(-1);
         elif len(title) == 0:
-            self.scene.removeItem(self.titem)
-            self.scene.removeItem(self.trect)
-            del self.titem
-            del self.trect
+            if self.titem != None:
+                self.scene.removeItem(self.titem)
+                del self.titem
+
+            if self.trect != None:
+                self.scene.removeItem(self.trect)
+                del self.trect
             self.titleoffset = 0
         self.title = title
         if len(title) > 0:
             grcol = self.sets.get('group.titlecolor','#fff')
-            self.titem.setHtml(f'<div style="color: {grcol}">{title}</div>')
+            if self.titem != None:
+                self.titem.setHtml(f'<div style="color: {grcol}">{title}</div>')
         if reposItems:
             self.repositems()
 
 
     def setStartPos(self, pos, animate = False):
         self.startpos = pos
-        if len(self.title) > 0:
+        #print('set startpos ',self.title, pos, 'titem=None is', self.titem == None)
+        if len(self.title) > 0 and self.titem != None:
             if animate:
                 self.titem.addAni('move',self.titem.pos(),QPointF(self.startpos[0],self.startpos[1]))
                 self.trect.addAni('move',self.trect.pos(),QPointF(self.startpos[0],self.startpos[1]))
@@ -168,13 +184,16 @@ class ItemList(list):
                 self.trect.setPos(self.startpos[0],self.startpos[1])
         self.repositems(0, animate)
 
-    def delitem(self, index, repos = True):
+    def delitem(self, index, repos = True, updatescene = False):
         self.scene.removeItem(self.pop(index))
+        self.scene.update
         #self.pop(index)
         for i in range(len(self)):
             self[i].index = i
         if repos:
             self.repositems(index, animate = True)
+        elif updatescene:
+            self.scene.update
 
     def findpos(self,i,c):
         if self.withtext:

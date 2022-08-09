@@ -1,3 +1,7 @@
+#
+# Panel of icons for quick run
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
+#
 import sys
 import os
 import images
@@ -8,6 +12,7 @@ from PyQt5.QtCore import Qt, QTimer, QSize, QPointF, QUrl #QSize,QRect,
 from PyQt5.QtGui import QIcon, QPainter
 from panelwindow import Ui_panelwindow
 from settingsdialog import SettingsDialog
+from iconlistedit import IconListDialog
 from settings import Settings
 from itemlist import GroupList
 from myitem import Item
@@ -23,12 +28,13 @@ class Panel(QWidget):
     onCloseSignal  = QtCore.pyqtSignal(QWidget)
 
     cdir = Settings.getConfigDir()
-    def __init__(self, qApp, setfn = 'Programms.json', title = None, lang = None):
+    def __init__(self, mainwindow, setfn = 'Programms.json', title = None):
         super(Panel, self).__init__()
         if not os.path.isdir(self.cdir):
             os.makedirs(self.cdir)
-        self.qApp = qApp
-        self.lang = lang
+        self.mainwindow = mainwindow
+        self.qApp = mainwindow.app
+        self.lang = mainwindow.lang
         self.ui = Ui_panelwindow()
         self.ui.setupUi(self)
         self.ui.ltitle.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -83,6 +89,8 @@ class Panel(QWidget):
     def titleContextMenu(self, pos):
         menu = QMenu()
         menu.setStyleSheet('background: '+self.sets.get('window.menubgcolor','#222')+'; color: '+self.sets.get('window.menucolor','#fff')+'; padding: 6px;')
+        iconlistAction = menu.addAction(self.lang.tr("icon_list"))
+        iconlistAction.setIcon(QIcon(':/iconlist.png'))
         settingsAction = menu.addAction(self.lang.tr("settings"))
         settingsAction.setIcon(QIcon(':/set.png'))
         menu.addSeparator()
@@ -106,6 +114,12 @@ class Panel(QWidget):
             shladd, title, withtext = groupedit.groupAdd(self.lang,self.sets.get('panel.withtext',False))
             if shladd:
                 self.glist.addList(title, (0,0),withtext)
+        elif action == iconlistAction:
+            dialog = IconListDialog(self, self.lang)
+            if dialog.exec() == 1:
+                dialog.savetosets()
+                self.glist.loadfromsets(self.signals)
+                self.setSceneRect()
 
     def startfile(self,filename):
         try:
@@ -124,7 +138,8 @@ class Panel(QWidget):
                     return
             self.titleContextMenu(pos)
             return
-
+        if self.groupitem < 0 or self.groupitem >= len(self.glist): return
+        if self.focusitem < 0 or self.focusitem >= len(self.glist[self.groupitem]): return;
         menu = QMenu()
         menu.setStyleSheet('background: '+self.sets.get('window.menubgcolor','#222')+'; color: '+self.sets.get('window.menucolor','#fff')+'; padding: 6px;')
         changeAction = menu.addAction(self.lang.tr("change"))
@@ -161,8 +176,8 @@ class Panel(QWidget):
             else:
                 gr.delitem(self.menuitem.index)
                 if gr.index < len(self.glist) - 1:
-                    self.glist.reposItems(gr.index+1,True)
-                if not self.anitimer.isActive(): self.anitimer.start(30)
+                   self.glist.reposItems(gr.index+1,True)
+                   if not self.anitimer.isActive(): self.anitimer.start(30)
             self.glist.savetosets()
             self.sets.save()
         elif action == addItemAction:
@@ -299,13 +314,13 @@ class Panel(QWidget):
         hs = pix.width() // 2
         drag.setHotSpot(QtCore.QPoint(hs,hs))
         i = drag.exec(Qt.CopyAction | Qt.MoveAction, Qt.CopyAction)
-        if i == 2:
+        if i == 2 and QApplication.keyboardModifiers() != Qt.ShiftModifier:
             gr = item.parent
             gr.delitem(item.index)
             if gr.index < len(self.glist) - 1:
                 self.glist.reposItems(gr.index+1,True)
             if not self.anitimer.isActive(): self.anitimer.start(30)
-        tempflist.append(dfn)
+        self.tempflist.append(dfn)
 
 
 
@@ -376,7 +391,7 @@ class Panel(QWidget):
     def onAniTimer(self):
         stop = True
         for gr in self.glist:
-            if len(gr.title)>0:
+            if len(gr.title)>0 and gr.titem != None:
                 for key in gr.titem.anilist:
                     if not gr.titem.anilist[key].doStep():
                         stop = False
@@ -434,7 +449,7 @@ class Panel(QWidget):
     def dropEvent(self,view, event):
         changed = False
         if event.mimeData().hasUrls:
-            event.setDropAction(Qt.CopyAction)
+            #event.setDropAction(Qt.CopyAction)
             event.accept()
             for url in event.mimeData().urls():
                 fn = str(url.toLocalFile())

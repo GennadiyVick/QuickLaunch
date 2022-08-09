@@ -1,6 +1,7 @@
+#
 # MyWidget class to emit mouse events
 # Copyright (C) 2021  Roganov G.V. roganovg@mail.ru
-
+#
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import Qt

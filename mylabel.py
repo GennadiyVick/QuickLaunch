@@ -1,8 +1,10 @@
 # MyLabel class to emit mousemove
 # Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 # 
-
-
+#
+# MyLabel class to emit mouse events
+# Copyright (C) 2021  Roganov G.V. roganovg@mail.ru
+#
 from PyQt5.QtCore import pyqtSignal
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt

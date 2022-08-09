@@ -1,3 +1,7 @@
+#
+#  GraphicsView
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
+#
 from PyQt5.QtWidgets import (QGraphicsView)
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5 import QtCore, QtGui

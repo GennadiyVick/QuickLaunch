@@ -1,6 +1,12 @@
+#
+# Custom setting module using json, it stores not only the
+# panel settings but also all its icons.
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
+#
 import os.path
 import json
 import os
+import io
 from pathlib import Path
 
 class Settings():
@@ -18,8 +24,8 @@ class Settings():
 
     def load(self,fn):
         if not os.path.isfile(fn): return False
-        jf =  open(fn)
-        self.sets = json.load(jf)
+        with io.open(fn, encoding='utf-8') as jf:
+            self.sets = json.load(jf)
         return self.sets != None
 
     def getbykey(self,item,key, create = False, listcreate = False):
@@ -86,32 +92,13 @@ class Settings():
         if os.name == "nt":
             appdata = os.getenv("LOCALAPPDATA")
             if appdata:
-                return Path(appdata+"/RoganovSoft/QuickLaunch")
+                return Path(appdata) / "RoganovSoft" / "QuickLaunch"
             appdata = os.getenv("APPDATA")
             if appdata:
-                return Path(appdata+"/RoganovSoft/QuickLaunch")
+                return Path(appdata) / "RoganovSoft" / "QuickLaunch" #Path(appdata+"/RoganovSoft/QuickLaunch")
             return Path('')
         xdg_config_home = os.getenv("XDG_CONFIG_HOME")
         if xdg_config_home:
             return Path(xdg_config_home+"/RoganovSoft/QuickLaunch")
         return Path(os.path.expanduser("~")+"/.config/RoganovSoft/QuickLaunch")
-'''
-    def applysets(self):
-        if self.sets == None: return
-        self.deficonsize =  self.sets.get('panel.defaulticonsize', 48)
-        iconsize = self.sets.get('panel.iconsize',32)
-        scalsesize = self.sets.get('panel.scalediconsize', 48)
-        self.defscale = iconsize / self.deficonsize
-        self.scaled = scalsesize / self.deficonsize
-        self.withtext = self.sets.get('panel.withtext',False)
-        self.shaddowoffset = self.sets.get('panel.shaddowoffsetx',2.0)
-        self.shaddowoffsetg = self.sets.get('panel.shaddowgause',6.0)
-        self.shaddowcolor = self.sets.get('panel.shaddowcolor','#80000000')
-        self.textcolor = self.sets.get('panel.textcolor','#80000000')
-        self.shaddow = self.sets.get('panel.shaddow',False)
-        self.groupcolor = self.sets.get('group.titlecolor','#fff')
-        self.groupbgcolor = self.sets.get('group.titlebgcolor','#40000000')
-        self.groupbordercolor = self.sets.get('group.titlebordercolor','#2000ffff')
-        if self.onApply != None:
-            self.onApply.emit()
-'''
+

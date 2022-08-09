@@ -1,3 +1,7 @@
+#
+# Item class and icon find functions
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
+#
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import (QGraphicsItem, QGraphicsTextItem, QGraphicsSceneHoverEvent,
     QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsObject, QGraphicsRectItem, QGraphicsDropShadowEffect)
@@ -6,6 +10,44 @@ from PyQt5.QtGui import QIcon, QPixmap, QColor, QBrush
 from animate import AniStack,ScaleAnimate,OpacityAnimate,MoveAnimate
 from os.path import expanduser
 import json
+
+def findicon(iconname):
+    home = expanduser("~")
+    icondirs = [home+"/.local/share/icons/hicolor/48x48/apps/",
+                home+"/.local/share/icons/hicolor/64x64/apps/",
+                "/usr/share/icons/hicolor/scalable/apps/",
+                "/usr/share/icons/hicolor/48x48/apps/",
+                "/usr/share/app-install/icons/",
+                "/usr/share/pixmaps/",
+                "/usr/share/icons/hicolor/48x48/mimetypes/",
+                "/usr/share/icons/hicolor/64x64/mimetypes/",
+                "/usr/share/icons/gnome/48x48/apps/"]
+    exts = [".png",".svg"]
+    if ".png" in iconname or ".svg" in iconname:
+        for icondir in icondirs:
+            fn = icondir+iconname
+            if QFile.exists(fn): return QIcon(fn)
+    else:
+        for icondir in icondirs:
+            for ext in exts:
+                fn = icondir + iconname + ext
+                if QFile.exists(fn): return QIcon(fn)
+    return None;
+
+
+def iconFromName(icon):
+    icn = None
+    if not QFile.exists(icon):
+        if '/' in icon or '\\' in icon:
+            return QIcon(":/icon.png")
+        icn = QIcon.fromTheme(icon)
+        if icn == None or icn.isNull():
+            icn = findicon(icon)
+            if icn == None or icn.isNull():
+                icn = QIcon(":/icon.png")
+    else:
+        icn = QIcon(icon)
+    return icn
 
 class Item():
     def __init__(self, signals = None):
@@ -39,42 +81,6 @@ class Item():
         i = item
         if item == None: i = self
         self.anilist[animation].addAni(i,start,stop, maxsteps)
-
-    def iconFromName(self):
-        icn = None
-        if not QFile.exists(self.icon):
-            icn = QIcon.fromTheme(self.icon)
-            if icn.isNull():
-                icn = self.findicon()
-                if icn == None or icn.isNull():
-                    icn = QIcon(":/icon.png")
-        else:
-            icn = QIcon(self.icon)
-        return icn
-
-    def findicon(self):
-        iconname = self.icon
-        home = expanduser("~")
-        icondirs = [home+"/.local/share/icons/hicolor/48x48/apps/",
-                    home+"/.local/share/icons/hicolor/64x64/apps/",
-                    "/usr/share/icons/hicolor/scalable/apps/",
-                    "/usr/share/icons/hicolor/48x48/apps/",
-                    "/usr/share/app-install/icons/",
-                    "/usr/share/pixmaps/",
-                    "/usr/share/icons/hicolor/48x48/mimetypes/",
-                    "/usr/share/icons/hicolor/64x64/mimetypes/",
-                    "/usr/share/icons/gnome/48x48/apps/"]
-        exts = [".png",".svg"]
-        if ".png" in iconname or ".svg" in iconname:
-            for icondir in icondirs:
-                fn = icondir+iconname
-                if QFile.exists(fn): return QIcon(fn)
-        else:
-            for icondir in icondirs:
-                for ext in exts:
-                    fn = icondir + iconname + ext
-                    if QFile.exists(fn): return QIcon(fn)
-        return None;
 
 class TItem(QGraphicsTextItem,Item):
     def __init__(self,parent,sinals = {}):
@@ -136,7 +142,7 @@ class GItem(QGraphicsPixmapItem,Item):
             self.onHover.emit(self,False)
 
     def changeIcon(self):
-        icn = self.iconFromName()
+        icn = iconFromName(self.icon)
         if icn != None:
             pix = icn.pixmap(icn.actualSize(QSize(self.deficonsize, self.deficonsize)))
             self.setPixmap(pix.scaled(self.deficonsize,self.deficonsize,Qt.KeepAspectRatio, Qt.SmoothTransformation))
@@ -216,7 +222,7 @@ class GTItem(QGraphicsItemGroup,Item):
         self.onHover.emit(self,False)
 
     def changeIcon(self):
-        icn = self.iconFromName()
+        icn = iconFromName(self.icon)
         if icn != None:
             pix = icn.pixmap(icn.actualSize(QSize(self.deficonsize, self.deficonsize)))
             self.gitem.setPixmap(pix.scaled(self.deficonsize,self.deficonsize,Qt.KeepAspectRatio, Qt.SmoothTransformation))

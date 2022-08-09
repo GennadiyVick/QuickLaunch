@@ -39,15 +39,15 @@ class AniStack(list):
 class Animate:
     def __init__(self, item,startValue,stopValue, maxsteps=6):
         """инициализация анимации, где в качестве входных данных ссылка на Item,
-            и количество шагов анимации по умолчанию 6"""
+            начальное и конечное значение и количество шагов (или кадров) анимации по умолчанию 6"""
         self.maxsteps = maxsteps
-        self.curstep = 0
-        self.finished = False
-        self.item = item
+        self.curstep = 0 #текущий шаг или кадр анимации
+        self.finished = False #флаг указывающий окончание анимации
+        self.item = item #ссылка на графический объект с которым производится анимация
         #self.startvalue = startValue
         self.stopvalue = stopValue
-        self.value = startValue
-        self.step = (stopValue - startValue) / maxsteps
+        self.value = startValue # текущее значение приравниваем начальному
+        self.step = (stopValue - startValue) / maxsteps #значение приращения для одного шага
 
     def doStep(self):
         """Шаг анимации, в данной функции мы приращиваем шаг на 1,
@@ -59,7 +59,7 @@ class Animate:
         if self.finished:
             self.value = self.stopvalue
         else:
-            self.value += self.step
+            self.value += self.step 
 
 
 

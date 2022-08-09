@@ -1,6 +1,11 @@
+#
+# custom transation class using lang.json as dictionary
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
+#
 import locale
 import json
 import os
+from pathlib import Path
 
 
 class Lang:
@@ -8,14 +13,14 @@ class Lang:
         l,_ = locale.getdefaultlocale()
         l = l.lower()[0:2]
         self.lang = 'default'
-        if os.path.isfile('lang.json'):
-            with open('lang.json') as f:
+        self.dic = {}
+        fn = Path(os.path.dirname(os.path.realpath(__file__))) / 'lang.json'
+        if os.path.isfile(fn):
+            with open(fn, encoding='utf-8') as f:
                 self.dic = json.load(f)
             values = list(self.dic.values())
-            if l in values[0]:
+            if (len(values) > 0) and (l in values[0]):
                 self.lang = l
-        else:
-            self.dic = {}
 
     def tr(self,s):
         if s in self.dic:

@@ -1,3 +1,7 @@
+#
+# Settings window
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
+#
 from PyQt5.QtWidgets import QDialog, QColorDialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QColor
 from settingsdialogwindow import Ui_Dialog
@@ -35,7 +39,6 @@ class SettingsDialog(QDialog):
 
     def setcbv(self,cb,key):
         cb.setChecked(self.sets.get(key,cb.isChecked()))
-
 
     def loadfromsets(self):
         self.ui.pEdit.setPlainText(self.sets.get('window.style',self.ui.pEdit.toPlainText()))

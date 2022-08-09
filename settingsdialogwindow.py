@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'settingsdialogwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.1
+# Settings window gui
+# Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 #
-# WARNING! All changes made in this file will be lost!
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
