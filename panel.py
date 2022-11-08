@@ -19,15 +19,17 @@ from myitem import Item
 import desktopparse
 import iconedit
 import groupedit
+import win
+
 
 class Panel(QWidget):
-    onHoverSignal  = QtCore.pyqtSignal(QGraphicsItem, bool)
-    onClickSignal  = QtCore.pyqtSignal(Item)
+    onHoverSignal = QtCore.pyqtSignal(QGraphicsItem, bool)
+    onClickSignal = QtCore.pyqtSignal(Item)
     onResizeSignal = QtCore.pyqtSignal()
-    onMovedSignal  = QtCore.pyqtSignal(Item,QGraphicsSceneMouseEvent)
-    onCloseSignal  = QtCore.pyqtSignal(QWidget)
-
+    onMovedSignal = QtCore.pyqtSignal(Item, QGraphicsSceneMouseEvent)
+    onCloseSignal = QtCore.pyqtSignal(QWidget)
     cdir = Settings.getConfigDir()
+
     def __init__(self, mainwindow, setfn = 'Programms.json', title = None):
         super(Panel, self).__init__()
         if not os.path.isdir(self.cdir):
@@ -40,8 +42,8 @@ class Panel(QWidget):
         self.ui.ltitle.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.ltitle.customContextMenuRequested.connect(self.titleContextMenu)
         self.sets = Settings(self.cdir / setfn)
-        if title != None:
-            self.sets.set('title',title)
+        if title is not None:
+            self.sets.set('title', title)
         if ('left' in self.sets.sets) and ('top' in self.sets.sets):
             self.move(self.sets.sets['left'],self.sets.sets['top'])
         if ('width' in self.sets.sets) and ('height' in self.sets.sets):
@@ -69,6 +71,9 @@ class Panel(QWidget):
         self.chtltimer.timeout.connect(self.doChangeTitle)
         self.changetitle = None
         self.tempflist = []
+        self.anisteps = self.sets.get('panel.anisteps',6)
+        self.anistepsclick = self.sets.get('panel.anistepsclick',4)
+        self.mainwindow.selfdrag = False
 
     def closeEvent(self, event):
         self.sets.sets['left'] = self.pos().x()
@@ -156,7 +161,7 @@ class Panel(QWidget):
         delgroupAction.setIcon(QIcon(':/delgroup.png'))
         openDirAction = None
         self.menuitem = self.glist[self.groupitem][self.focusitem]
-        path=os.path.dirname(self.menuitem.exec)
+        path=os.path.dirname(self.menuitem.exec.replace('"',''))
         if (len(path) > 0) and os.path.isdir(path):
             #self.openpath = path
             menu.addSeparator()
@@ -251,6 +256,8 @@ class Panel(QWidget):
         QTimer.singleShot(50, self.applystyle)
         self.ui.ltitle.setText(self.sets.get('title','Programs'))
         self.ui.ltitle.setStyleSheet('QLabel#ltitle {padding-top :6px; color: '+self.sets.get('window.titlecolor','#fff')+';}')
+        self.anisteps = self.sets.get('panel.anisteps',6)
+        self.anistepsclick = self.sets.get('panel.anistepsclick',4)
 
     def changeTitle(self,title):
         self.ui.ltitle.setText(title)
@@ -313,8 +320,11 @@ class Panel(QWidget):
         drag.setPixmap(pix)
         hs = pix.width() // 2
         drag.setHotSpot(QtCore.QPoint(hs,hs))
+        self.mainwindow.selfdrag = True
         i = drag.exec(Qt.CopyAction | Qt.MoveAction, Qt.CopyAction)
-        if i == 2 and QApplication.keyboardModifiers() != Qt.ShiftModifier:
+        self.mainwindow.selfdrag = False
+        print('drag result:',i)
+        if i == 2:
             gr = item.parent
             gr.delitem(item.index)
             if gr.index < len(self.glist) - 1:
@@ -353,16 +363,16 @@ class Panel(QWidget):
 
         if clas == 'GTItem':
             #item.anilist['scale'].addAni(item.gitem,sstart,sstop)
-            item.addAni('scale',sstart,sstop,item.gitem)
+            item.addAni('scale',sstart,sstop,item.gitem, maxsteps=self.anisteps)
             if onEnter:
                 ostart = 0.7
                 ostop = 1.0
             else:
                 ostart = 1.0
                 ostop = 0.7
-            item.addAni('opacity',ostart,ostop,item.titem)
+            item.addAni('opacity',ostart,ostop,item.titem, maxsteps=self.anisteps)
         else:
-            item.addAni('scale',sstart,sstop)
+            item.addAni('scale',sstart,sstop, maxsteps=self.anisteps)
 
         if not self.anitimer.isActive(): self.anitimer.start(30)
 
@@ -370,7 +380,7 @@ class Panel(QWidget):
         clas = item.__class__.__name__
         mins = 0.3
         maxs = 1.3
-        steps = 4
+        steps = self.anistepsclick
         if clas == 'GTItem':
             iscale = item.gitem.scale()
             item.addAni('scale',iscale,mins,item.gitem, maxsteps = steps)
@@ -419,7 +429,7 @@ class Panel(QWidget):
         if not gr.withtext:
             endscale = gr.defscale
 
-        item.addAni('scale',0.0, endscale)
+        item.addAni('scale',0.0, endscale, maxsteps=self.anisteps)
         r = self.scene.sceneRect()
         if r.height() < self.glist.height():
             self.setSceneRect()
@@ -438,7 +448,7 @@ class Panel(QWidget):
         endscale = 1.0
         if not gr.withtext:
             endscale = gr.defscale
-        item.addAni('scale',0.0, endscale)
+        item.addAni('scale',0.0, endscale, maxsteps=self.anisteps)
         r = self.scene.sceneRect()
         if r.height() < self.glist.height():
             self.setSceneRect()
@@ -449,11 +459,31 @@ class Panel(QWidget):
     def dropEvent(self,view, event):
         changed = False
         if event.mimeData().hasUrls:
-            #event.setDropAction(Qt.CopyAction)
-            event.accept()
+            isShiftMod = QApplication.keyboardModifiers() == Qt.ShiftModifier
+            if self.mainwindow.selfdrag:
+                if isShiftMod:
+                    event.setDropAction(Qt.CopyAction)
+            else:
+                if not isShiftMod:
+                    event.setDropAction(Qt.CopyAction)
             for url in event.mimeData().urls():
                 fn = str(url.toLocalFile())
-                title,icon,exec = desktopparse.parse(self, fn, self.lang)
+                lfn = fn.lower()
+                cachepath = os.path.join(os.path.dirname(self.sets.fn),'iconcache')
+                if not os.path.isdir(cachepath):
+                    os.mkdir(cachepath)
+                if lfn.endswith('.desktop'):
+                    title,icon,exec = desktopparse.parse(self, fn, self.lang)
+                elif lfn.endswith('.lnk'):
+                    title,icon,exec = win.lnkparse(fn, cachepath)
+                elif lfn.endswith('.exe'):
+                    title = os.path.basename(fn)[:-4]
+                    icon = win.saveiconfromexe(fn, 0, cachepath)
+                    exec = '"'+fn+'"'
+                else:
+                    event.ignore()
+                    return
+                event.accept()
                 if title != "" and icon != "" and exec != "":
                     gri = 0
                     ii = -1
@@ -483,7 +513,7 @@ class Panel(QWidget):
                                                 break
                                 else:
                                     ly = items[0].pos().y()+items.fsize // 2
-                                    lx = items[i].pos().x()+items.fsize // 2
+                                    lx = items[0].pos().x()+items.fsize // 2
                                     if y < ly and x < lx:
                                         ii = 0
                                     else:

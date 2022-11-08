@@ -62,6 +62,10 @@ class SettingsDialog(QDialog):
         self.setcol(self.ui.lGroupTitleBgColor,'group.titlebgcolor')
         self.setcol(self.ui.lGroupTitleBorderColor,'group.titlebordercolor')
 
+        self.setsbv(self.ui.sbAnimationSteps,'panel.anisteps')
+        self.setsbv(self.ui.sbAnimationStepsClick,'panel.anistepsclick')
+        self.setsbv(self.ui.sbInterval,'panel.iconinterval')
+
         self.ui.eTitle.setText(self.sets.get('title',''))
 
 
@@ -86,6 +90,10 @@ class SettingsDialog(QDialog):
         self.sets.set('group.titlebgcolor',self.getcol(self.ui.lGroupTitleBgColor))
         self.sets.set('group.titlebordercolor',self.getcol(self.ui.lGroupTitleBorderColor))
 
+        self.sets.set('panel.anisteps', self.ui.sbAnimationSteps.value())
+        self.sets.set('panel.anistepsclick', self.ui.sbAnimationStepsClick.value())
+        self.sets.set('panel.iconinterval', self.ui.sbInterval.value())
+        #print('panel.anistep',self.sets.get('panel.anistep', -1))
         self.sets.set('title',self.ui.eTitle.text())
 
     def initButtons(self):

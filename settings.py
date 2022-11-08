@@ -58,7 +58,9 @@ class Settings():
             item = parent
         for key in keys:
             item = self.getbykey(item,key)
-            if item == None: return default
+            if item == None:
+                self.set(keystring, default, parent)
+                return default
         return item
 
 

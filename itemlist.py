@@ -117,7 +117,8 @@ class ItemList(list):
             self.hinterval = round(abs(self.deficonsize - iconsize) / 2)
         else:
             self.hinterval = 0
-        self.fsize = iconsize+self.hinterval
+        #self.hinterval += self.sets.get('panel.iconinterval',0)
+        self.fsize = iconsize+self.hinterval+self.sets.get('panel.iconinterval',0)
 
 
         self.titleoffset = 0
@@ -214,9 +215,9 @@ class ItemList(list):
             r = self.gv.contentsRect()
             c = r.width() // self.fsize
             if self.withtext:
-                self.height = self.titleoffset+(cnt * self.fsize)+self.hinterval
+                self.height = self.titleoffset+(cnt * self.fsize) + self.hinterval
             else:
-                self.height = self.titleoffset+ (((cnt-1) // c + 1) * self.fsize)+self.hinterval
+                self.height = self.titleoffset+ (((cnt-1) // c + 1) * self.fsize) + self.hinterval
             return
 
         r = self.gv.contentsRect()
@@ -232,9 +233,9 @@ class ItemList(list):
                 item.setPos(x, y)
 
         if self.withtext:
-            self.height = self.titleoffset+(cnt * self.fsize)+self.hinterval
+            self.height = self.titleoffset+(cnt * self.fsize) + self.hinterval
         else:
-            self.height = self.titleoffset+ (((cnt-1) // c + 1) * self.fsize)+self.hinterval
+            self.height = self.titleoffset+ (((cnt-1) // c + 1) * self.fsize) + self.hinterval
 
 
     def addItem(self,signals,title,icon,exec, repos = True):

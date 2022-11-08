@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# The program to manage a pane-type windows where you can move files with
-# the .desktop extension to quickly launch programs or other commands.
+# The program to manage a panel-type windows where you can drop
+# a .desktop extension file to the panel to quickly launch programs or other commands.
+# more information read in readme file.
 #
 # Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 # 
@@ -73,7 +74,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
     def loadpanels(self):
         fn = self.configdir / 'panels.json'
         if not os.path.isfile(fn): return False
-        with open(fn) as f:
+        with open(fn, encoding='utf-8') as f:
             self.panels = json.load(f)
         for info in self.panels:
             item = QtGui.QStandardItem(info['title'])

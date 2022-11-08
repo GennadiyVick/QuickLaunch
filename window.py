@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QApplication
 from mywidget import MyWidget
 from mylabel import MyLabel
 
+
 class Ui_window(object):
     def setupUi(self, window, width = 300, height = 300):
         self.window = window

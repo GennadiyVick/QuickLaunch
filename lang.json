@@ -48,5 +48,8 @@
 "icon_list": {"default": "Icon list", "ru": "Список значков"},
 "il_remove_group": {"default":"Remove group with all icons?","ru":"Удалить группу со значками?"},
 "il_remove": {"default":"Remove icon?","ru":"Удалить кнопку запуска?"},
-"iconlisttitle": {"default":"Icon list","ru":"Список значков"}
+"iconlisttitle": {"default":"Icon list","ru":"Список значков"},
+"anisteps": {"default":"Animation steps count:", "ru":"Шагов анимации:"},
+"anistepsclick": {"default":"Animation steps cnt onClick:", "ru":"Шагов анимации onClick:"},
+"iconinterval": {"default":"Additional icon interval:","ru":"Доп. интервал между иконками:"}
 }
