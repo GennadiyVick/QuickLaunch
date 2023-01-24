@@ -29,7 +29,7 @@ To run this program, you must enter in the console
 python program_path\quicklaunch.py or
 pythonw program_path\quicklaunch.py to run without terminal
 
-You can also create a launch shortcut on the desktop
+You can also create a launch shortcut on the desktop with command: pythonw program_path\quicklaunch.py
 
 Linux: ========================
 For the program to work in Linux, you need to use python version 3 or higher.
@@ -44,9 +44,9 @@ To install the module in the console, enter pip3 install pyqt5,
 the module will be automatically downloaded and installed.
 The program starts like this:
 
-python3 program_path/quicklaunchpanels.py
+python3 program_path/quicklaunch.py
 
-You can also add permission to run the script and run it by double clicking
+You can also add permission to run the script and run it by double clicking or command: path/quicklaunch.py in .desktop file or command line
 *************************************************
 
 Author: Roganov G.V. roganovg@mail.ru

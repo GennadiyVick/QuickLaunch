@@ -66,6 +66,9 @@ class Panel(QWidget):
         self.focusitem = -1
         self.anitimer = QTimer(self)
         self.anitimer.timeout.connect(self.onAniTimer)
+        self.removetimer = QTimer(self)
+        self.removetimer.timeout.connect(self.onRemoveTimer)
+        self.removetimer.setInterval(5000)
         self.applysets()
         self.chtltimer = QTimer(self)
         self.chtltimer.timeout.connect(self.doChangeTitle)
@@ -288,10 +291,11 @@ class Panel(QWidget):
                 l.trect.setRect(r)
         self.glist.reposItems()
 
-    def onMoved(self,item,event):
+
+    def savelink(self, item, path):
         fn = "".join(x for x in item.title if x.isalnum())
         fn += '.desktop'
-        fn = str(self.cdir / fn)
+        fn = os.path.join(path, fn)
         if os.path.exists(fn): os.remove(fn)
         with open(fn,'w') as f:
             f.write('[Desktop Entry]\n')
@@ -302,8 +306,17 @@ class Panel(QWidget):
             f.write('Icon='+item.icon+'\n')
             f.write('Hidden=false\n')
             f.write('Terminal=false\n')
+        return fn
+
+    def onMoved(self,item,event):
+        isexec = False
+        km = QApplication.keyboardModifiers()
+        if km == Qt.ControlModifier and os.path.isfile(item.exec):
+            fn = item.exec
+            isexec = True
+        else:
+            fn = self.savelink(item, str(self.cdir))
         dfn = fn
-        fn = str(fn)
         if fn[0] == '/':
             fn = 'file://'+fn
         else:
@@ -321,16 +334,22 @@ class Panel(QWidget):
         hs = pix.width() // 2
         drag.setHotSpot(QtCore.QPoint(hs,hs))
         self.mainwindow.selfdrag = True
-        i = drag.exec(Qt.CopyAction | Qt.MoveAction, Qt.CopyAction)
+        #if os.path.isfile(item.exec):
+        if isexec:
+            i = drag.exec(Qt.CopyAction | Qt.LinkAction, Qt.CopyAction)
+        else:
+            i = drag.exec(Qt.CopyAction | Qt.MoveAction, Qt.CopyAction)
         self.mainwindow.selfdrag = False
-        print('drag result:',i)
-        if i == 2:
-            gr = item.parent
-            gr.delitem(item.index)
-            if gr.index < len(self.glist) - 1:
-                self.glist.reposItems(gr.index+1,True)
-            if not self.anitimer.isActive(): self.anitimer.start(30)
-        self.tempflist.append(dfn)
+        #print('drag result:',i)
+        if not isexec:
+            if i == 2:
+                gr = item.parent
+                gr.delitem(item.index)
+                if gr.index < len(self.glist) - 1:
+                    self.glist.reposItems(gr.index+1,True)
+                if not self.anitimer.isActive(): self.anitimer.start(30)
+            self.tempflist.append(dfn)
+            self.removetimer.start()
 
 
 
@@ -397,6 +416,16 @@ class Panel(QWidget):
         proc = QtCore.QProcess()
         proc.startDetached(item.exec)
 
+
+    def onRemoveTimer(self):
+        self.removetimer.stop()
+        while len(self.tempflist) > 0:
+            fn = self.tempflist.pop(0)
+            if os.path.isfile(fn):
+                try:
+                    os.remove(fn)
+                except:
+                    pass
 
     def onAniTimer(self):
         stop = True
