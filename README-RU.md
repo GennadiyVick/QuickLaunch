@@ -1,6 +1,6 @@
 # QuickLaunch.
 
-Select Language: [Английский](https://github.com/GennadiyVick/QuickLaunch/README.md), **Русский**
+Select Language: [Английский](https://github.com/GennadiyVick/QuickLaunch/blob/master/README.md), **Русский**
 
 Программа создаёт окно панельного вида со значками для быстрого запуска. Добавить значёк можно перетаскиванием на панель файла *.desktop либо с контекстного меню
 
