@@ -1,6 +1,6 @@
 # QuickLaunch.
 
-Select Language: **English**, [Russian](https://github.com/GennadiyVick/QuickLaunch/README-RU.md)
+Select Language: **English**, [Russian](https://github.com/GennadiyVick/QuickLaunch/blob/master/README-RU.md)
 
 The program creates panel-type windows to quickly launch applications. You can add launch buttons via the panel context menu or by dragging and dropping a .desktop file into the panel
 To run the program, run the `quicklaunch.py` file.
