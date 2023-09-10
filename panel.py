@@ -72,13 +72,20 @@ class Panel(QWidget):
         self.applysets()
         self.chtltimer = QTimer(self)
         self.chtltimer.timeout.connect(self.doChangeTitle)
+        self.savetimer = QTimer(self)
+        self.savetimer.timeout.connect(self.savetimertimer)
+        self.savetimer.setInterval(60000)
         self.changetitle = None
         self.tempflist = []
         self.anisteps = self.sets.get('panel.anisteps',6)
         self.anistepsclick = self.sets.get('panel.anistepsclick',4)
         self.mainwindow.selfdrag = False
 
-    def closeEvent(self, event):
+    def savetimertimer(self):
+        self.savetimer.stop()
+        self.savesettings()
+
+    def savesettings(self):
         self.sets.sets['left'] = self.pos().x()
         self.sets.sets['top'] = self.pos().y()
         self.sets.sets['width'] = self.size().width()
@@ -91,6 +98,10 @@ class Panel(QWidget):
                 os.remove(tfn)
             except:
                 pass
+
+    def closeEvent(self, event):
+        self.savesettings()
+
         if __name__ == '__main__':
             self.qApp.quit()
 
@@ -122,6 +133,8 @@ class Panel(QWidget):
             shladd, title, withtext = groupedit.groupAdd(self.lang,self.sets.get('panel.withtext',False))
             if shladd:
                 self.glist.addList(title, (0,0),withtext)
+                self.savetimer.stop()
+                self.savetimer.start()
         elif action == iconlistAction:
             dialog = IconListDialog(self, self.lang)
             if dialog.exec() == 1:
@@ -177,6 +190,8 @@ class Panel(QWidget):
                 if self.menuitem.__class__.__name__ == 'GTItem':
                     texcol = self.sets.get('panel.textcolor','#80000000')
                     self.menuitem.titem.setHtml(f'<div style="color: {texcol}">{self.menuitem.title}</div>')
+                self.savetimer.stop()
+                self.savetimer.start()
         elif action == delAction:
             gr = self.menuitem.parent
             if len(gr) < 2:
@@ -186,8 +201,9 @@ class Panel(QWidget):
                 if gr.index < len(self.glist) - 1:
                    self.glist.reposItems(gr.index+1,True)
                    if not self.anitimer.isActive(): self.anitimer.start(30)
-            self.glist.savetosets()
-            self.sets.save()
+            self.savetimer.stop()
+            self.savetimer.start()
+
         elif action == addItemAction:
             self.doAddItem(self.menuitem.parent)
         elif action == editgroupAction:
@@ -219,15 +235,15 @@ class Panel(QWidget):
     def doDelGroup(self,gr):
         self.glist.delete(gr.index)
         self.setSceneRect()
-        self.glist.savetosets()
-        self.sets.save()
+        self.savetimer.stop()
+        self.savetimer.start()
 
     def doAddItem(self,gr):
         add,title,icon,exec = iconedit.iconAdd(self.lang)
         if not add: return
         self.appendIcon(gr.index,title,icon,exec)
-        self.glist.savetosets()
-        self.sets.save()
+        self.savetimer.stop()
+        self.savetimer.start()
 
     def doEditGroup(self,gr):
         i = gr.index
@@ -252,8 +268,8 @@ class Panel(QWidget):
                     self.glist.reposItems(gr.index+1,True)
                     if not self.anitimer.isActive(): self.anitimer.start(30)
                 self.setSceneRect()
-        self.glist.savetosets()
-        self.sets.save()
+        self.savetimer.stop()
+        self.savetimer.start()
 
     def applysets(self):
         QTimer.singleShot(50, self.applystyle)
@@ -265,8 +281,8 @@ class Panel(QWidget):
     def changeTitle(self,title):
         self.ui.ltitle.setText(title)
         self.sets.set('title',title)
-        self.glist.savetosets()
-        self.sets.save()
+        self.savetimer.stop()
+        self.savetimer.start()
 
     def applystyle(self):
         style = self.sets.get('window.style', self.ui.centralwidget.styleSheet())
@@ -463,8 +479,8 @@ class Panel(QWidget):
         if r.height() < self.glist.height():
             self.setSceneRect()
         if not self.anitimer.isActive(): self.anitimer.start(30)
-        self.glist.savetosets()
-        self.sets.save()
+        self.savetimer.stop()
+        self.savetimer.start()
 
     def appendIcon(self,groupIndex,title,icon,exec):
         gr = self.glist[groupIndex]
@@ -482,8 +498,8 @@ class Panel(QWidget):
         if r.height() < self.glist.height():
             self.setSceneRect()
         if not self.anitimer.isActive(): self.anitimer.start(30)
-        self.glist.savetosets()
-        self.sets.save()
+        self.savetimer.stop()
+        self.savetimer.start()
 
     def dropEvent(self,view, event):
         changed = False
@@ -557,8 +573,8 @@ class Panel(QWidget):
                         self.appendIcon(gri,title,icon,exec)
                     else:
                         self.insertIcon(gri,ii,title,icon,exec)
-                    self.glist.savetosets()
-                    self.sets.save()
+                    self.savetimer.stop()
+                    self.savetimer.start()
 
 
 

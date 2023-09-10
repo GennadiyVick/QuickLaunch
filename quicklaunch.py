@@ -17,6 +17,7 @@ import sys
 import json
 import os
 from lang import Lang
+from shortcutdialog import getShortCut
 
 from quicklaunchwindow import Ui_QuickLaunchPanelsWindow
 from panel import Panel
@@ -36,6 +37,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         self.app = parent
         self.canClose = False
         self.dialogs = []
+        self.shortcuts = {}
         #self.fn = os.path.dirname(os.path.abspath(__file__))
         #self.fn += "/panels.lst"
         self.panels = []
@@ -56,12 +58,40 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         menu = QMenu(self)
         #menu.setStyleSheet("background: #222")
         act = QAction(self.lang.tr('show_window'),self)
-        act.triggered.connect(self.showdialog);
+        act.triggered.connect(self.showdialog)
         menu.addAction(act)
+
+        sc = QAction(self.lang.tr('shortcut'), self)
+        sc.triggered.connect(self.set_shortcut)
+        menu.addAction(sc)
         p = self.mapToGlobal(pos)
         p.setX(p.x()+1)
         p.setY(p.y()+1)
         menu.exec_(p)
+
+    def set_shortcut(self):
+        if self.model.rowCount() == 0: return
+        i = self.ui.lv.currentIndex().row()
+        ks = getShortCut(self.lang, self)
+        if ks == None: return
+        fn = self.panels[i]['filename']
+        if fn in self.shortcuts:
+            sc = self.shortcuts[fn]
+            sc.setKey(ks)
+        else:
+            sc = QtWidgets.QShortcut(ks, QtWidgets.QApplication.desktop())
+            sc.activated.connect(lambda: self.show_panel(i))
+            self.shortcuts[fn] = sc
+
+
+    def show_panel(self, index):
+        if self.panels[index]['visible']:
+            self.dialogs[index].hide()
+            self.panels[index]['visible'] = False
+        else:
+            self.dialogs[index].show()
+            self.dialogs[index].onResize()
+            self.panels[index]['visible'] = True
 
     def showdialog(self):
         if self.model.rowCount() == 0: return

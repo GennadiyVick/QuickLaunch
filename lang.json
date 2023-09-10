@@ -51,5 +51,8 @@
 "iconlisttitle": {"default":"Icon list","ru":"Список значков"},
 "anisteps": {"default":"Animation steps count:", "ru":"Шагов анимации:"},
 "anistepsclick": {"default":"Animation steps cnt onClick:", "ru":"Шагов анимации onClick:"},
-"iconinterval": {"default":"Additional icon interval:","ru":"Доп. интервал между иконками:"}
+"iconinterval": {"default":"Additional icon interval:","ru":"Доп. интервал между иконками:"},
+"visible_shortcut" :{"default":"Shortcut for fast close and open a panel.","ru":"Горячие клавиши для быстрого открытия или закрытия панели."},
+"shortcut" :{"default":"Change shortcut","ru":"Горячие клавиши"},
+"clear" :{"default":"Clear","ru":"Очистить"}
 }

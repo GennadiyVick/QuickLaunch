@@ -5,7 +5,6 @@
 import locale
 import json
 import os
-from pathlib import Path
 
 
 class Lang:
@@ -14,7 +13,7 @@ class Lang:
         l = l.lower()[0:2]
         self.lang = 'default'
         self.dic = {}
-        fn = Path(os.path.dirname(os.path.realpath(__file__))) / 'lang.json'
+        fn = os.path.join(os.path.dirname(os.path.realpath(__file__)) , 'lang.json')
         if os.path.isfile(fn):
             with open(fn, encoding='utf-8') as f:
                 self.dic = json.load(f)
@@ -26,7 +25,7 @@ class Lang:
         if s in self.dic:
             return self.dic[s][self.lang]
         else:
-            return s
+            return s.replace('_',' ')
 
 
 

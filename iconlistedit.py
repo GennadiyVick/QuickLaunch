@@ -238,28 +238,69 @@ class IconListDialog(QtWidgets.QDialog):
             if reply != QtWidgets.QMessageBox.Yes: return
             self.model.removeRow(i)
 
+    def moveitem(self, item, f, t):
+        nitem = Item()
+        nitem.assign(item)
+        self.model.removeRow(f)
+        self.model.insertRow(t)
+        self.model.setItem(t, nitem)
+
+    def moveupgroup(self, i):
+        #Первое найдём начало группы выше
+        prevgroup = -1
+        for j in range(i-1,-1,-1):
+            if self.model.item(j).isgroup:
+                prevgroup = j
+                break
+        if prevgroup < 0:
+            return
+        #Найдем последний элемент группы
+        lastingroup = self.model.rowCount()-1
+        for j in range(i+1,self.model.rowCount()):
+            if self.model.item(j).groupindex != self.model.item(i).groupindex:
+                lastingroup = j-1
+                break
+        j = prevgroup
+
+        for n in range(i, lastingroup+1):
+            self.moveitem(self.model.item(n),n,j)
+            j+=1
+        self.ui.lv.setCurrentIndex(self.model.index(prevgroup,0))
+
+
+    def movedowngroup(self, i):
+        #Найдем следущую группу
+        nextgroup = self.model.rowCount()
+        for j in range(i+1,self.model.rowCount()):
+            if self.model.item(j).groupindex != self.model.item(i).groupindex:
+                nextgroup = j
+                break
+
+        if nextgroup > self.model.rowCount()-2:
+            return
+        self.moveupgroup(nextgroup)
+
+
+
+
     def moveup(self):
         i =  self.ui.lv.currentIndex().row()
         if i < 2: return
-        if self.model.item(i).isgroup: return
+        if self.model.item(i).isgroup:
+            self.moveupgroup(i)
+            return
         m = i-1
-        item = Item()
-        item.assign(self.model.item(i))
-        self.model.removeRow(i)
-        self.model.insertRow(m)
-        self.model.setItem(m, item)
+        self.moveitem(self.model.item(i),i,m)
         self.ui.lv.setCurrentIndex(self.model.index(m,0))
 
     def movedown(self):
         i =  self.ui.lv.currentIndex().row()
         if i > self.model.rowCount()-2: return
-        if self.model.item(i).isgroup: return
+        if self.model.item(i).isgroup:
+            self.movedowngroup(i)
+            return
         m = i+1
-        item = Item()
-        item.assign(self.model.item(i))
-        self.model.removeRow(i)
-        self.model.insertRow(m)
-        self.model.setItem(m, item)
+        self.moveitem(self.model.item(i),i,m)
         self.ui.lv.setCurrentIndex(self.model.index(m,0))
 
     def savetosets(self):
