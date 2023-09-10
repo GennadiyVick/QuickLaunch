@@ -1,5 +1,5 @@
 #
-# Panel of icons for quick run
+# Panel of icons for quick launch
 # Copyright (C) 2020  Roganov G.V. roganovg@mail.ru
 #
 import sys
@@ -80,6 +80,10 @@ class Panel(QWidget):
         self.anisteps = self.sets.get('panel.anisteps',6)
         self.anistepsclick = self.sets.get('panel.anistepsclick',4)
         self.mainwindow.selfdrag = False
+
+
+    def resizetimer(self):
+        QtCore.QTimer.singleShot(50, self.onResize)
 
     def savetimertimer(self):
         self.savetimer.stop()

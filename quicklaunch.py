@@ -22,7 +22,27 @@ from shortcutdialog import getShortCut
 from quicklaunchwindow import Ui_QuickLaunchPanelsWindow
 from panel import Panel
 import settings
+from server import StreamServer, send
  
+
+class Application(QtWidgets.QApplication):
+    def __init__(self, argv):
+        super(Application, self).__init__(argv)
+        self._singular = QtCore.QSharedMemory("SharedMemoryForOnlyOneInstanceOfQuicklaunch", self)
+
+    #def __del__(self):
+        #if self._singular.isAttached():
+        #    self._singular.detach()
+
+    def lock(self):
+        if self._singular.attach(QtCore.QSharedMemory.ReadOnly):
+            self._singular.detach()
+            return False
+        if self._singular.create(1):
+            return True
+
+        return False
+
 
 class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -52,7 +72,34 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         self.ui.bAdd.clicked.connect(self.addclick)
         self.ui.bDel.clicked.connect(self.delclick)
         self.setWindowIcon(QIcon(':/run.png'))
+        self.runserver()
 
+
+    def runserver(self):
+        thread = QtCore.QThread()
+        self.serv = StreamServer(thread)
+        #self.serv.onFinish.connect(self.threadFinish)
+        self.serv.onRead.connect(self.doRead)
+        self.serv.moveToThread(thread)
+        thread.started.connect(self.serv.run)
+        thread.start()
+
+    def doRead(self, data):
+        attr = data.split()
+        if len(attr)>1:
+            if attr[0].lower() == '-s':
+                for i in range(self.model.rowCount()):
+                    s = self.model.data(self.model.index(i,0))
+                    if s.lower() == attr[1].lower():
+                        if self.panels[i]['visible'] == False:
+                            self.dialogs[i].show()
+                            self.dialogs[i].resizetimer()
+                            self.panels[i]['visible'] = True
+                        else:
+                            self.dialogs[i].hide()
+                            self.panels[i]['visible'] = False
+                        break
+    
 
     def initContextMenu(self, pos):
         menu = QMenu(self)
@@ -61,15 +108,15 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
         act.triggered.connect(self.showdialog)
         menu.addAction(act)
 
-        sc = QAction(self.lang.tr('shortcut'), self)
-        sc.triggered.connect(self.set_shortcut)
-        menu.addAction(sc)
+        #sc = QAction(self.lang.tr('shortcut'), self)
+        #sc.triggered.connect(self.set_shortcut)
+        #menu.addAction(sc)
         p = self.mapToGlobal(pos)
         p.setX(p.x()+1)
         p.setY(p.y()+1)
         menu.exec_(p)
 
-    def set_shortcut(self):
+    '''def set_shortcut(self):
         if self.model.rowCount() == 0: return
         i = self.ui.lv.currentIndex().row()
         ks = getShortCut(self.lang, self)
@@ -82,7 +129,7 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
             sc = QtWidgets.QShortcut(ks, QtWidgets.QApplication.desktop())
             sc.activated.connect(lambda: self.show_panel(i))
             self.shortcuts[fn] = sc
-
+    '''
 
     def show_panel(self, index):
         if self.panels[index]['visible']:
@@ -143,7 +190,8 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
             
     def doQuit(self):
         self.canClose = True
-        if self.app != None and "QApplication" in str(type(self.app)):
+        if self.app != None and "Application" in str(type(self.app)):
+            self.serv.keep_running = False
             self.closeDialogs()
             self.savepanels()
             self.app.quit()
@@ -220,7 +268,11 @@ class QuickLaunchPanelsWindow(QtWidgets.QMainWindow):
  
  
 def main():
-    app = QtWidgets.QApplication(sys.argv)
+    app = Application(sys.argv)
+    if not app.lock():
+        if len(sys.argv) > 1:
+            send('\n'.join(sys.argv[1:]))
+        return -42;
     app.setQuitOnLastWindowClosed(False)
     main = QuickLaunchPanelsWindow(app)
     app.mainwindow = main
