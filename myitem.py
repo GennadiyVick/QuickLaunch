@@ -11,6 +11,7 @@ from animate import AniStack,ScaleAnimate,OpacityAnimate,MoveAnimate
 from os.path import expanduser
 import json
 
+
 def findicon(iconname):
     home = expanduser("~")
     icondirs = [home+"/.local/share/icons/hicolor/48x48/apps/",
@@ -49,16 +50,16 @@ def iconFromName(icon):
         icn = QIcon(icon)
     return icn
 
+
 class Item():
-    def __init__(self, signals = None):
-        #self.prnt = prnt
-        if signals == None: return
+    def __init__(self, signals=None):
+        if signals is None: return
         self.index = 0
         self.anilist = {'scale':AniStack(ScaleAnimate), 'move': AniStack(MoveAnimate)}
         self.visible = True
         self.title = ''
         self.icon = ''
-        self.exec = ''
+        self.exec: str = ''
         self.deficonsize = 48
         self.moved = False
         self.mx = 0
@@ -82,6 +83,7 @@ class Item():
         if item == None: i = self
         self.anilist[animation].addAni(i,start,stop, maxsteps)
 
+
 class TItem(QGraphicsTextItem,Item):
     def __init__(self,parent,sinals = {}):
         Item.__init__(self,sinals)
@@ -100,11 +102,13 @@ class TItem(QGraphicsTextItem,Item):
             self.onHover.emit(self,False)
 '''
 
+
 class RItem(QGraphicsRectItem, Item):
     def __init__(self,parent, signals = {}):
         Item.__init__(self,signals)
         QGraphicsRectItem.__init__(self)
         self.parent = parent
+
 
 class GItem(QGraphicsPixmapItem,Item):
     def __init__(self, parent, signals, icon,title, exec):
@@ -212,6 +216,9 @@ class GTItem(QGraphicsItemGroup,Item):
             self.setGraphicsEffect(eff)
         self.changeIcon()
         self.addToGroup(self.gitem)
+
+    def pixmap(self):
+        return self.gitem.pixmap()
 
     def hoverEnterEvent(self, event):
         super().hoverEnterEvent(event)

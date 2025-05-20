@@ -13,12 +13,9 @@ readtimeout = 3
 maxclients = 1
 
 
-
 def strtodata(s):
     l = len(s)
     return l.to_bytes(2,'big') + s.encode('utf-8')
-
-
 
 
 class StreamServer(QtCore.QObject):
@@ -144,7 +141,7 @@ class Receiver(QtCore.QObject):
             else:
                 l = int.from_bytes(data,'big')
                 r = self.readstr(l)
-                if state == 1:
+                if r[0] == 1:
                     self.onRead.emit(r[1])
                 break
         self.sock.close()

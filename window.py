@@ -11,7 +11,9 @@ from mywidget import MyWidget
 from mylabel import MyLabel
 
 
-class Ui_window(object):
+class Ui_window(QtCore.QObject):
+    onMovedSignal = QtCore.pyqtSignal()
+
     def setupUi(self, window, width = 300, height = 300):
         self.window = window
         window.setObjectName("window")
@@ -123,8 +125,8 @@ class Ui_window(object):
 
         self.retranslateUi(window)
         QtCore.QMetaObject.connectSlotsByName(window)
-
-        self.window.move(QApplication.desktop().screen().rect().center() - self.window.rect().center())
+        self.window.move(10,10)
+        #self.window.move(QApplication.desktop().screen().rect().center() - self.window.rect().center())
 
     def onpress(self, event):
         print('on press')
@@ -203,7 +205,6 @@ class Ui_window(object):
                     t = y + dh + dist
                     if l > x - sdist and l < x + sdist: l = x
                     break
-
         self.window.move(l,t)
 
     def ltitleMouseRelease(self, event):

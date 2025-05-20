@@ -6,9 +6,9 @@ import sys
 import os
 import images
 import subprocess
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import (QApplication, QWidget,QMenu,QAction, QGraphicsScene, QGraphicsView, QGraphicsItem, QGraphicsSceneMouseEvent)
-from PyQt5.QtCore import Qt, QTimer, QSize, QPointF, QUrl #QSize,QRect,
+from PyQt5 import QtGui, QtCore
+from PyQt5.QtWidgets import (QApplication, QWidget, QMenu, QGraphicsScene, QGraphicsItem, QGraphicsSceneMouseEvent, QGraphicsOpacityEffect)
+from PyQt5.QtCore import Qt, QTimer, QSize, QUrl, pyqtProperty  # QSize,QRect,
 from PyQt5.QtGui import QIcon, QPainter
 from panelwindow import Ui_panelwindow
 from settingsdialog import SettingsDialog
@@ -35,6 +35,7 @@ class Panel(QWidget):
         if not os.path.isdir(self.cdir):
             os.makedirs(self.cdir)
         self.mainwindow = mainwindow
+        #self._popupOpacity = 0
         self.qApp = mainwindow.app
         self.lang = mainwindow.lang
         self.ui = Ui_panelwindow()
@@ -80,7 +81,22 @@ class Panel(QWidget):
         self.anisteps = self.sets.get('panel.anisteps',6)
         self.anistepsclick = self.sets.get('panel.anistepsclick',4)
         self.mainwindow.selfdrag = False
+        self.opacity_effect = QGraphicsOpacityEffect(self)
+        self.opacity_effect.setOpacity(1.0)
 
+        self.setGraphicsEffect(self.opacity_effect)
+        self.animation = QtCore.QPropertyAnimation(self)
+        self.animation.setTargetObject(self.opacity_effect)
+        self.animation.setPropertyName(b'opacity')
+        self.animation.setDuration(500)
+        self.animation.setStartValue(0.0)
+        self.animation.setEndValue(1.0)
+
+    def start_show_animate(self):
+        self.onResize()
+        #self.opacity_effect.setOpacity(0.0)
+        #self.animation.setDirection(QtCore.QPropertyAnimation.Forward) #Backward
+        self.animation.start()
 
     def resizetimer(self):
         QtCore.QTimer.singleShot(50, self.onResize)
@@ -146,10 +162,12 @@ class Panel(QWidget):
                 self.glist.loadfromsets(self.signals)
                 self.setSceneRect()
 
-    def startfile(self,filename):
+    def startfile(self, filename):
+        print('start:', filename)
         try:
             os.startfile(filename)
         except:
+            print('error run')
             subprocess.Popen(['xdg-open', filename])
 
     def gvContextMenu(self, pos):
@@ -311,7 +329,6 @@ class Panel(QWidget):
                 l.trect.setRect(r)
         self.glist.reposItems()
 
-
     def savelink(self, item, path):
         fn = "".join(x for x in item.title if x.isalnum())
         fn += '.desktop'
@@ -371,13 +388,10 @@ class Panel(QWidget):
             self.tempflist.append(dfn)
             self.removetimer.start()
 
-
-
     def doChangeTitle(self):
         self.chtltimer.stop()
-        if self.changetitle == None: return
+        if self.changetitle is None: return
         self.ui.ltitle.setText(self.changetitle)
-
 
     def onHover(self,item,onEnter):
         self.groupitem = -1
@@ -422,20 +436,19 @@ class Panel(QWidget):
         steps = self.anistepsclick
         if clas == 'GTItem':
             iscale = item.gitem.scale()
-            item.addAni('scale',iscale,mins,item.gitem, maxsteps = steps)
-            item.addAni('scale',mins,iscale,item.gitem, maxsteps = steps)
-            item.addAni('scale',iscale,maxs,item.gitem, maxsteps = steps)
-            item.addAni('scale',maxs,iscale,item.gitem, maxsteps = steps)
+            item.addAni('scale', iscale, mins, item.gitem, maxsteps=steps)
+            item.addAni('scale', mins, iscale, item.gitem, maxsteps=steps)
+            item.addAni('scale', iscale, maxs, item.gitem, maxsteps=steps)
+            item.addAni('scale', maxs, iscale, item.gitem, maxsteps=steps)
         elif clas == 'GItem':
             iscale = item.scale()
-            item.addAni('scale',iscale,mins, maxsteps = steps)
-            item.addAni('scale',mins,iscale, maxsteps = steps)
-            item.addAni('scale',iscale,maxs, maxsteps = steps)
-            item.addAni('scale',maxs,iscale, maxsteps = steps)
+            item.addAni('scale', iscale, mins, maxsteps=steps)
+            item.addAni('scale', mins, iscale, maxsteps=steps)
+            item.addAni('scale', iscale, maxs, maxsteps=steps)
+            item.addAni('scale', maxs, iscale, maxsteps=steps)
         if not self.anitimer.isActive(): self.anitimer.start(30)
         proc = QtCore.QProcess()
         proc.startDetached(item.exec)
-
 
     def onRemoveTimer(self):
         self.removetimer.stop()
@@ -505,7 +518,7 @@ class Panel(QWidget):
         self.savetimer.stop()
         self.savetimer.start()
 
-    def dropEvent(self,view, event):
+    def dropEvent(self, view, event):
         changed = False
         if event.mimeData().hasUrls:
             isShiftMod = QApplication.keyboardModifiers() == Qt.ShiftModifier

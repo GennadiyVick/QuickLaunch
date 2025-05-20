@@ -45,7 +45,7 @@ sudo apt-get install python3
 ```
 Далее установите модуль `PyQt5` коммандой:
 ```console
-pip3 install pyqt5
+sudo apt-get install python3-pyqt5
 ```
 Запуск программы:
 ```console
